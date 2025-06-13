@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MineLauncher", "MineLauncher.csproj", "{C13318FC-4E37-4CFA-88F0-3F09334BC72C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurseForgeExtractor", "CurseForgeExtractor\CurseForgeExtractor.csproj", "{3406D5CA-0B60-4093-9B28-2C95BDBF17F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{C13318FC-4E37-4CFA-88F0-3F09334BC72C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C13318FC-4E37-4CFA-88F0-3F09334BC72C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C13318FC-4E37-4CFA-88F0-3F09334BC72C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3406D5CA-0B60-4093-9B28-2C95BDBF17F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3406D5CA-0B60-4093-9B28-2C95BDBF17F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3406D5CA-0B60-4093-9B28-2C95BDBF17F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3406D5CA-0B60-4093-9B28-2C95BDBF17F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

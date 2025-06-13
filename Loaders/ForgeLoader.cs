@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using System.Threading.Tasks;
 using CmlLib.Core;
 using CmlLib.Core.Installer.Forge;
