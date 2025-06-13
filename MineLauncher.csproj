@@ -111,6 +111,7 @@
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
         </ApplicationDefinition>
+        <Compile Include="Account.cs" />
         <Compile Include="Loaders\ForgeLoader.cs" />
         <Compile Include="Loaders\LoaderBase.cs" />
         <Compile Include="Loaders\Manager.cs" />
