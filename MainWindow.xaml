@@ -1,0 +1,61 @@
+<Window x:Class="MineLauncher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MineLauncher"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Grid.ColumnSpan="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="30"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding AppSettings.InstallDir, Source={x:Static local:App.Instance}, Mode=TwoWay}"/>
+                <Button Grid.Column="1" Click="BrowseClicked">...</Button>
+            </Grid>
+            <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="0">
+                <ProgressBar Value="{Binding SelectedRepo.RepoUpdateProgress, Source={x:Static local:App.Instance}}"/>
+                <TextBlock Text="{Binding SelectedRepo.RepoUpdateProgressText, Source={x:Static local:App.Instance}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            <ComboBox Grid.Column="1" Grid.Row="1"
+                      ItemsSource="{Binding Source={x:Static local:App.Instance}, Path=Repos.Values}"
+                      SelectedItem="{Binding Source={x:Static local:App.Instance}, Path=SelectedRepo, Mode=TwoWay}"
+                      DisplayMemberPath="Title"/>
+            <Button Grid.Column="1" Grid.Row="2" Click="ActionClicked" IsEnabled="{Binding Source={x:Static local:App.Instance}, Path=SelectedRepo.CanDispatchTask}">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <!-- Default value (false case) -->
+                        <Setter Property="Content" Value="Update"/>
+            
+                        <!-- When true -->
+                        <Style.Triggers>
+                            <DataTrigger 
+                                Binding="{Binding Source={x:Static local:App.Instance}, Path=SelectedRepo.IsUpToDate}" 
+                                Value="True">
+                                <Setter Property="Content" Value="Play"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>
