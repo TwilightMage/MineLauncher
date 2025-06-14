@@ -22,6 +22,13 @@ public partial class MainTab : RadioButton
             var tab = (MainTab)o;
             RemoveGroupItem(tab.GroupName, (string)args.OldValue);
             AddGroupItem(tab.GroupName, (string)args.NewValue, tab);
+
+            var groupSelection = GetGroupSelection(tab.GroupName);
+
+            if (groupSelection == (string)args.OldValue) // moving from the selected item name
+                tab.IsChecked = false;
+            else if (groupSelection == (string)args.NewValue) // moving to the selected item name
+                tab.IsChecked = true;
         }));
     
     public object Screen
@@ -88,6 +95,22 @@ public partial class MainTab : RadioButton
     }
 
     public static MainTab GetSelectedTabInGroup(string groupName) => GetTabByItemName(groupName, GetGroupSelection(groupName));
+
+    public static void SelectTabByItemName(string groupName, string itemName)
+    {
+        var currentSelection = GetGroupSelection(groupName);
+        
+        if (currentSelection == itemName)
+            return;
+
+        if (GetTabByItemName(groupName, itemName) is { } existingTab)
+            existingTab.IsChecked = true;
+        else
+        {
+            GroupItemSelections[groupName] = itemName;
+            GroupItemSelected?.Invoke(groupName, itemName);
+        }
+    }
     
     public MainTab()
     {

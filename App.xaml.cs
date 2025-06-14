@@ -83,9 +83,14 @@ public partial class App : INotifyPropertyChanged
             
         AppSettings.Load();
         
+        MainTab.SelectTabByItemName("MainTabs", AppSettings.Repo);
+        
         LoginCommand.Execute(null);
             
         FetchRepos();
+        
+        if (string.IsNullOrEmpty(AppSettings.Repo))
+            MainTab.SelectTabByItemName("MainTabs", Repos.Keys.FirstOrDefault());
 
         MainTab.GroupItemSelected += (group, item) =>
         {
