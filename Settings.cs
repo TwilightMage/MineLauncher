@@ -1,25 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Windows.Data;
 
 namespace MineLauncher
 {
+    public enum Language
+    {
+        System,
+        Russian,
+        English
+    }
+    
+    public class LanguageDisplayConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Language language)
+            {
+                return language switch
+                {
+                    Language.System => culture.TwoLetterISOLanguageName switch
+                    {
+                        "ru" => "Системный",
+                        _ => "System"
+                    },
+                    Language.Russian => "Русский",
+                    Language.English => "English",
+                    _ => language.ToString()
+                };
+            }
+            return string.Empty;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    
     public class SerializableSetting : Attribute
     { }
     
     public class Settings : INotifyPropertyChanged
     {
+        private Language _language = Language.System;
+        [SerializableSetting]
+        public Language Language
+        {
+            get => _language;
+            set {
+                if (SetField(ref _language, value))
+                {
+                    OnLanguageChanged?.Invoke();
+                    Save();
+                }
+            }
+        }
+        public event Action OnLanguageChanged;
+        
+        public Language GetUsedLanguage()
+        {
+            if (Language == Language.System)
+            {
+                return System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName switch
+                {
+                    "ru" => Language.Russian,
+                    "en" => Language.English,
+                    _ => Language.English
+                };
+            }
+            
+            return Language;
+        }
+        
         private string _installDir;
         [SerializableSetting]
         public string InstallDir
         {
             get => _installDir;
             set {
-                if (SetField(ref _installDir, value, InstallDir))
+                if (SetField(ref _installDir, value))
                 {
                     OnInstallDirChanged?.Invoke();
                     Save();
@@ -44,21 +111,21 @@ namespace MineLauncher
         }
         public event Action OnRepoChanged;
         
-        private string _java;
+        private string _javaPath;
         [SerializableSetting]
-        public string Java
+        public string JavaPath
         {
-            get => _java;
+            get => _javaPath;
             set
             {
-                if (SetField(ref _java, value))
+                if (SetField(ref _javaPath, value))
                 {
-                    OnJavaChanged?.Invoke();
+                    OnJavaPathChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnJavaChanged;
+        public event Action OnJavaPathChanged;
         
         private int _minJavaSizeMb = 4 * 1024;
         [SerializableSetting]

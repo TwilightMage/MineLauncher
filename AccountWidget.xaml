@@ -1,0 +1,60 @@
+﻿<UserControl x:Class="MineLauncher.AccountWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:MineLauncher"
+             xmlns:materialIcons="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
+             xmlns:properties="clr-namespace:MineLauncher.Properties"
+             mc:Ignorable="d"
+             d:DesignHeight="50" d:DesignWidth="200"
+             DataContext="{Binding Source={x:Static local:App.Instance}}">
+    <Grid>
+        <ContentControl Width="200" Height="30">
+            <ContentControl.Style>
+                <!-- Default content when Account is not null -->
+                <Style TargetType="ContentControl">
+                    <Setter Property="Content">
+                        <Setter.Value>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" MinWidth="30" MinHeight="30" VerticalAlignment="Center" Background="LightGray" Margin="4, 0, 0, 0">
+                                    <Image Width="30" Height="30"/>
+                                </Border>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" 
+                                         Text="{Binding Account.Username}"
+                                         Margin="4, 0"/>
+                                <Button Grid.Column="2"
+                                        VerticalAlignment="Center" 
+                                        Command="{Binding Path=LogoutCommand}"
+                                        Background="Transparent" 
+                                        BorderBrush="Transparent" 
+                                        ToolTip="{x:Static properties:Strings.Account_Logout}"
+                                        Margin="0, 0, 4, 0">
+                                    <materialIcons:MaterialIcon Kind="Logout" Margin="5"/>
+                                </Button>
+                            </Grid>
+                        </Setter.Value>
+                    </Setter>
+
+                    <!-- Content when Account is null -->
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Path=Account}" Value="{x:Null}">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <Button VerticalAlignment="Center" Command="{Binding Path=LoginCommand}">
+                                        <TextBlock Text="{x:Static properties:Strings.Account_Login}"/>
+                                    </Button>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
+</UserControl>

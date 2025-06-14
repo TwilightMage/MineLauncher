@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="GeneratedClassName">Resources</resheader>
+    <resheader name="AccessModifier">Public</resheader>
+    <data name="Play_Title" xml:space="preserve">
+        <value>Играть</value>
+    </data>
+    <data name="Update_Title" xml:space="preserve">
+        <value>Обновить</value>
+    </data>
+    <data name="Account_Logout" xml:space="preserve">
+        <value>Выйти из аккаунта</value>
+    </data>
+    <data name="Account_Login" xml:space="preserve">
+        <value>Войти в аккаунт</value>
+    </data>
+    <data name="Setting_InstallDir" xml:space="preserve">
+        <value>Директория установки</value>
+    </data>
+    <data name="Setting_JavaPath" xml:space="preserve">
+        <value>Путь к Java</value>
+    </data>
+    <data name="Setting_Language" xml:space="preserve">
+        <value>Язык</value>
+    </data>
+    <data name="Setting_MaxRAM" xml:space="preserve">
+        <value>Макс. RAM (MB)</value>
+    </data>
+    <data name="Setting_MinRAM" xml:space="preserve">
+        <value>Мин. RAM (MB)</value>
+    </data>
+</root>

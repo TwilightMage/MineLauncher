@@ -7,6 +7,16 @@ namespace MineLauncher;
 /// </summary>
 public partial class MainWindow
 {
+    public static readonly DependencyProperty SelectedScreenProperty =
+        DependencyProperty.Register(nameof(SelectedScreen), typeof(object), typeof(MainWindow), 
+            new PropertyMetadata(null));
+
+    public object SelectedScreen
+    {
+        get { return GetValue(SelectedScreenProperty); }
+        set { SetValue(SelectedScreenProperty, value); }
+    }
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -20,15 +30,8 @@ public partial class MainWindow
             App.Instance.SelectedRepo.Update();
     }
 
-    private void BrowseClicked(object sender, RoutedEventArgs e)
+    private void ModpackTabChecked(object sender, RoutedEventArgs e)
     {
-        System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-        folderDialog.SelectedPath = App.Instance.AppSettings.InstallDir;
-            
-        var result = folderDialog.ShowDialog();  
-        if (result.ToString() != string.Empty)  
-        {  
-            App.Instance.AppSettings.InstallDir = folderDialog.SelectedPath;  
-        }  
+        int i = 1;
     }
 }
