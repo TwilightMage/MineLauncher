@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -37,5 +39,37 @@ public static class Utils
 
             UpdateAllLocalizationBindings(child);
         }
+    }
+    public static bool TryParseDateTime(string input, out DateTime result)
+    {
+        // Common formats list (modify/extend as needed)
+        var formats = new[]
+        {
+            // ISO 8601 variants
+            "yyyy-MM-ddTHH:mm:ss.FFFFFFF",
+            "yyyy-MM-dd HH:mm:ss.FFFFFFF",
+            "yyyyMMddTHHmmssfff",
+            
+            // With comma as millisecond separator
+            "yyyy-MM-dd HH:mm:ss,fff",
+            "yyyy-MM-ddTHH:mm:ss,fff",
+            
+            // Without milliseconds
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-ddTHH:mm:ss",
+            
+            // Date-only formats
+            "yyyy-MM-dd",
+            "MM/dd/yyyy",
+            "dd/MM/yyyy"
+        };
+
+        return DateTime.TryParseExact(
+            input,
+            formats,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.None,
+            out result
+        );
     }
 }

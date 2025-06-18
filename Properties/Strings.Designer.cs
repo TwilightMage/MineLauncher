@@ -78,11 +78,128 @@ namespace MineLauncher.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Action_Cancel {
+            get {
+                return ResourceManager.GetString("Action_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fetching....
+        /// </summary>
+        public static string Action_Fetching {
+            get {
+                return ResourceManager.GetString("Action_Fetching", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install.
+        /// </summary>
+        public static string Action_Install {
+            get {
+                return ResourceManager.GetString("Action_Install", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Play.
         /// </summary>
-        public static string Play_Title {
+        public static string Action_Run {
             get {
-                return ResourceManager.GetString("Play_Title", resourceCulture);
+                return ResourceManager.GetString("Action_Run", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop.
+        /// </summary>
+        public static string Action_Stop {
+            get {
+                return ResourceManager.GetString("Action_Stop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        public static string Action_Update {
+            get {
+                return ResourceManager.GetString("Action_Update", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Dialog_Cancel {
+            get {
+                return ResourceManager.GetString("Dialog_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ok.
+        /// </summary>
+        public static string Dialog_Ok {
+            get {
+                return ResourceManager.GetString("Dialog_Ok", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Java Browser.
+        /// </summary>
+        public static string JavaBrowser_Title {
+            get {
+                return ResourceManager.GetString("JavaBrowser_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to find loader.
+        /// </summary>
+        public static string Progress_Error_Loader {
+            get {
+                return ResourceManager.GetString("Progress_Error_Loader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installing Minecraft: {0} / {1}.
+        /// </summary>
+        public static string Progress_InstallingMinecraft {
+            get {
+                return ResourceManager.GetString("Progress_InstallingMinecraft", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installing modpack: {0} / {1}.
+        /// </summary>
+        public static string Progress_InstallingModpack {
+            get {
+                return ResourceManager.GetString("Progress_InstallingModpack", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preparing....
+        /// </summary>
+        public static string Progress_Preparing {
+            get {
+                return ResourceManager.GetString("Progress_Preparing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updating modpack: {0} / {1}.
+        /// </summary>
+        public static string Progress_UpdatingModpack {
+            get {
+                return ResourceManager.GetString("Progress_UpdatingModpack", resourceCulture);
             }
         }
         
@@ -128,15 +245,6 @@ namespace MineLauncher.Properties {
         public static string Setting_MinRAM {
             get {
                 return ResourceManager.GetString("Setting_MinRAM", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Update.
-        /// </summary>
-        public static string Update_Title {
-            get {
-                return ResourceManager.GetString("Update_Title", resourceCulture);
             }
         }
     }

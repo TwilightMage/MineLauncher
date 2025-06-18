@@ -6,9 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using CmlLib.Core;
+using MineLauncher.Commands;
 using Version = System.Version;
 
 namespace MineLauncher;
@@ -28,13 +30,30 @@ public partial class App : INotifyPropertyChanged
     }
 
     public Settings AppSettings { get; private set; }
+    public bool CanInstallAny => !string.IsNullOrEmpty(AppSettings.InstallDir);
 
     public Dictionary<string, Repo> Repos { get; private set; } = new();
-    public Repo SelectedRepo { get; set; }
-        
-    public Dictionary<string, string> Javas = new();
-        
+
+    private Repo _selectedRepo;
+    public Repo SelectedRepo
+    {
+        get => _selectedRepo;
+        private set
+        {
+            if (SetField(ref _selectedRepo, value))
+            {
+                SelectedRepoChanged?.Invoke();
+            }
+        }
+    }
+    public event Action SelectedRepoChanged;
+    public event Action SelectedRepoTaskChanged;
+    
+    public Repo RunningRepo { get; private set; }
+
     public string MinecraftBaseDir => Path.Combine(Instance.AppSettings.InstallDir, "minecraft");
+    public string LogsDir => Path.Combine(MinecraftBaseDir, "logs");
+    public string LatestLogFile => Path.Combine(LogsDir, "latest.log");
 
     public Visibility ActionPanelVisibility => MainTab.GetSelectedTabInGroup("MainTabs")?.DataContext is Repo ? Visibility.Visible : Visibility.Collapsed;
 
@@ -43,10 +62,10 @@ public partial class App : INotifyPropertyChanged
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-            
+
         AppSettings = new Settings();
             
-        AppSettings.OnInstallDirChanged += () =>
+        AppSettings.InstallDirChanged += () =>
         {
             foreach (var repo in Repos)
             {
@@ -54,7 +73,7 @@ public partial class App : INotifyPropertyChanged
             }
         };
 
-        AppSettings.OnLanguageChanged += () =>
+        AppSettings.LanguageChanged += () =>
         {
             switch (AppSettings.Language)
             {
@@ -84,8 +103,6 @@ public partial class App : INotifyPropertyChanged
         AppSettings.Load();
         
         MainTab.SelectTabByItemName("MainTabs", AppSettings.Repo);
-        
-        LoginCommand.Execute(null);
             
         FetchRepos();
         
@@ -94,7 +111,18 @@ public partial class App : INotifyPropertyChanged
 
         MainTab.GroupItemSelected += (group, item) =>
         {
-            OnPropertyChanged(nameof(ActionPanelVisibility));
+            if (group == "MainTabs")
+            {
+                if (item == "account")
+                {
+                    if (Account is null)
+                    {
+                        LoginCommand.Execute(null);
+                    }
+                }
+                
+                OnPropertyChanged(nameof(ActionPanelVisibility));
+            }
         };
 
         MinecraftLauncherParameters parameters = MinecraftLauncherParameters.CreateDefault(new MinecraftPath(MinecraftBaseDir));
@@ -102,8 +130,10 @@ public partial class App : INotifyPropertyChanged
     }
 
     private ICommand _loginCommand;
-    public ICommand LoginCommand => _loginCommand ??= new RelayCommand(() =>
+    public ICommand LoginCommand => _loginCommand ??= new RelayCommand(async () =>
     {
+        await Task.Delay(3000);
+        
         Account = new Account
         {
             Username = "Drakosha",
@@ -114,7 +144,23 @@ public partial class App : INotifyPropertyChanged
     public ICommand LogoutCommand => _logoutCommand ??= new RelayCommand(() =>
     {
         Account = null;
+
+        if (MainTab.GetGroupSelection("MainTabs") == "account")
+        {
+            MainTab.SelectTabByItemName("MainTabs", Repos.Keys.FirstOrDefault());
+        }
     });
+
+    private void RepoTaskChanged(Repo repo)
+    {
+        if (repo.CurrentTask == Repo.RepoTaskType.Running)
+            RunningRepo = repo;
+        else if (repo == RunningRepo)
+            RunningRepo = null;
+        
+        if (repo == SelectedRepo)
+            SelectedRepoTaskChanged?.Invoke();
+    }
 
     public void FetchRepos()
     {
@@ -138,6 +184,7 @@ public partial class App : INotifyPropertyChanged
         {
             repo.Value.Key = repo.Key;
             repo.Value.FetchVersion();
+            repo.Value.CurrentTaskChanged += RepoTaskChanged; 
         }
 
         if (Repos.TryGetValue(AppSettings.Repo ?? "", out var foundRepo))

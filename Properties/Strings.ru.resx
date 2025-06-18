@@ -20,12 +20,6 @@
     </resheader>
     <resheader name="GeneratedClassName">Resources</resheader>
     <resheader name="AccessModifier">Public</resheader>
-    <data name="Play_Title" xml:space="preserve">
-        <value>Играть</value>
-    </data>
-    <data name="Update_Title" xml:space="preserve">
-        <value>Обновить</value>
-    </data>
     <data name="Account_Logout" xml:space="preserve">
         <value>Выйти из аккаунта</value>
     </data>
@@ -46,5 +40,47 @@
     </data>
     <data name="Setting_MinRAM" xml:space="preserve">
         <value>Мин. RAM (MB)</value>
+    </data>
+    <data name="Dialog_Ok" xml:space="preserve">
+        <value>Ок</value>
+    </data>
+    <data name="Dialog_Cancel" xml:space="preserve">
+        <value>Отмена</value>
+    </data>
+    <data name="JavaBrowser_Title" xml:space="preserve">
+        <value>Java Браузер</value>
+    </data>
+    <data name="Action_Cancel" xml:space="preserve">
+        <value>Отмена</value>
+    </data>
+    <data name="Action_Fetching" xml:space="preserve">
+        <value>Верификация...</value>
+    </data>
+    <data name="Action_Install" xml:space="preserve">
+        <value>Установить</value>
+    </data>
+    <data name="Action_Run" xml:space="preserve">
+        <value>Играть</value>
+    </data>
+    <data name="Action_Stop" xml:space="preserve">
+        <value>Остановить</value>
+    </data>
+    <data name="Action_Update" xml:space="preserve">
+        <value>Обновить</value>
+    </data>
+    <data name="Progress_Preparing" xml:space="preserve">
+        <value>Подготовка...</value>
+    </data>
+    <data name="Progress_InstallingMinecraft" xml:space="preserve">
+        <value>Устанавливаем Майнкрафт: {0} / {1}</value>
+    </data>
+    <data name="Progress_UpdatingModpack" xml:space="preserve">
+        <value>Обновляем сборку: {0} / {1}</value>
+    </data>
+    <data name="Progress_InstallingModpack" xml:space="preserve">
+        <value>Устанавливаем сборку: {0} / {1}</value>
+    </data>
+    <data name="Progress_Error_Loader" xml:space="preserve">
+        <value>Ошибка поиска загрузчика</value>
     </data>
 </root>

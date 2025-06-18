@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using CmlLib.Core.Auth;
@@ -15,6 +17,7 @@ namespace MineLauncher;
 
 public class Repo : INotifyPropertyChanged
 {
+    
     public enum RepoTaskType
     {
         None,
@@ -25,12 +28,21 @@ public class Repo : INotifyPropertyChanged
 
     public Repo()
     {
-        App.Instance.AppSettings.OnLanguageChanged += () => OnPropertyChanged(nameof(Title));
+        App.Instance.AppSettings.LanguageChanged += () => OnPropertyChanged(nameof(Title));
     }
         
     public string Key { get; set; }
-    
-    public string Title => TitleByLanguage[App.Instance.AppSettings.GetUsedLanguage()];
+
+    public string Title
+    {
+        get
+        {
+            var lang = App.Instance.AppSettings.GetUsedLanguage();
+            if (TitleByLanguage.TryGetValue(lang, out var title))
+                return title;
+            return TitleByLanguage[Language.English];
+        }
+    }
     public Dictionary<Language, string> TitleByLanguage;
     
     public string Loader { get; set; }
@@ -50,11 +62,11 @@ public class Repo : INotifyPropertyChanged
         {
             if (SetField(ref _currentTask, value))
             {
-                OnPropertyChanged(nameof(CanDispatchTask));
+                CurrentTaskChanged?.Invoke(this);
             }
         }
     }
-    public bool CanDispatchTask => CurrentTask == RepoTaskType.None;
+    public event Action<Repo> CurrentTaskChanged;
 
     public bool IsLoaderInstalled => Directory.Exists(Path.Combine(App.Instance.MinecraftBaseDir, "versions", GameVersion));
     public bool IsModPackUpToDate => GitRepo != null && GitRepo.Head.Tip.Sha == GitRepo.Branches["main"].Tip.Sha;
@@ -91,12 +103,14 @@ public class Repo : INotifyPropertyChanged
     public string RepoDir => Path.Combine(App.Instance.AppSettings.InstallDir, Key);
         
     public string ModpackDir => Path.Combine(RepoDir, ".minecraft");
-    public string LogsDir => Path.Combine(ModpackDir, "logs");
     public string ModsDir => Path.Combine(ModpackDir, "mods");
     public string ConfigsDir => Path.Combine(ModpackDir, "config");
     public string ResourcePacksDir => Path.Combine(ModpackDir, "resourcepacks");
     public string ShaderPacksDir => Path.Combine(ModpackDir, "shaderpacks");
     public string ServersFile => Path.Combine(ModpackDir, "servers.dat");
+    
+    private Process _runProcess;
+    private CancellationTokenSource _cts;
 
     ~Repo()
     {
@@ -131,7 +145,7 @@ public class Repo : INotifyPropertyChanged
             var remote = GitRepo.Network.Remotes["origin"];
             var msg = "Fetching remote";
             var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-            Commands.Fetch(GitRepo, remote.Name, refSpecs, options, msg);
+            LibGit2Sharp.Commands.Fetch(GitRepo, remote.Name, refSpecs, options, msg);
 
             if (IsUpToDate)
             {
@@ -154,40 +168,42 @@ public class Repo : INotifyPropertyChanged
         if (CurrentTask != RepoTaskType.None)
             return;
         CurrentTask = RepoTaskType.Updating;
-        
-        App.Instance.Dispatcher.Invoke(() =>
-        {
-            UpdateProgress(0, "Preparing...");
-        });
+
+        _cts = new CancellationTokenSource();
             
         // Update minecraft
         if (!IsLoaderInstalled)
         {
+            UpdateProgress(0, Properties.Strings.Progress_Preparing);
+            
             if (Loaders.Manager.GetLoader(Loader) is { } loader)
             {
                 await loader.Install(App.Instance.Cml, MCVersion, (progressedBytes, totalBytes) =>
                 {
-                    App.Instance.Dispatcher.Invoke(() =>
-                    {
-                        UpdateProgress((float)progressedBytes / totalBytes * 100, $"Installing Minecraft... {Utils.FormatSize(progressedBytes)} / {Utils.FormatSize(totalBytes)}");
-                    });
-                });
+                    UpdateProgress((float)progressedBytes / totalBytes * 100, Properties.Strings.Progress_InstallingMinecraft.FormatInline(Utils.FormatSize(progressedBytes), Utils.FormatSize(totalBytes)));
+                }, _cts);
             }
             else
             {
-                App.Instance.Dispatcher.Invoke(() =>
-                {
-                    UpdateError("Failed to find loader");
-                });
+                UpdateError(Properties.Strings.Progress_Error_Loader);
                     
                 CurrentTask = RepoTaskType.None;
                 return;
             }
         }
+
+        if (_cts.IsCancellationRequested)
+        {
+            UpdateProgress(100);
+            CurrentTask = RepoTaskType.None;
+            return;
+        }
         
         // Update modpack
         if (!IsModPackUpToDate)
         {
+            UpdateProgress(0, Properties.Strings.Progress_Preparing);
+            
             if (GitRepo == null)
             {
                 await Task.Run(() =>
@@ -196,23 +212,16 @@ public class Repo : INotifyPropertyChanged
                     {
                         OnCheckoutProgress = (_, steps, totalSteps) =>
                         {
-                            App.Instance.Dispatcher.Invoke(() =>
-                            {
-                                RepoUpdateProgress = (float)steps / totalSteps * 100;
-                                RepoUpdateProgressText = $"Updating modpack {steps}/{totalSteps}...";
-                            });
+                            UpdateProgress((float)steps / totalSteps * 100, Properties.Strings.Progress_InstallingModpack.FormatInline(steps, totalSteps));
                         }
                     });
                 });
             
-                App.Instance.Dispatcher.Invoke(() =>
-                {
-                    GitRepo = new Repository(RepoDir);
-                });
+                GitRepo = new Repository(RepoDir);
             }
             else
             {
-                Commands.Checkout(GitRepo, GitRepo.Branches["main"]);
+                LibGit2Sharp.Commands.Checkout(GitRepo, GitRepo.Branches["main"]);
 
                 if (!IsModPackUpToDate)
                 {
@@ -223,10 +232,7 @@ public class Repo : INotifyPropertyChanged
                         FileConflictStrategy = CheckoutFileConflictStrategy.Theirs,
                         OnCheckoutProgress = (_, steps, totalSteps) =>
                         {
-                            App.Instance.Dispatcher.Invoke(() =>
-                            {
-                                UpdateProgress((float)steps / totalSteps * 100, $"Updating modpack {steps}/{totalSteps}...");
-                            });
+                            UpdateProgress((float)steps / totalSteps * 100, Properties.Strings.Progress_UpdatingModpack.FormatInline(steps, totalSteps));
                         }
                     });
                 }
@@ -248,42 +254,76 @@ public class Repo : INotifyPropertyChanged
             return;
         CurrentTask = RepoTaskType.Running;
 
-        var proc = await App.Instance.Cml.CreateProcessAsync(GameVersion, new MLaunchOption
+        try
         {
-            ArgumentDictionary = new Dictionary<string, string>
+            _cts = new CancellationTokenSource();
+            
+            _runProcess = await App.Instance.Cml.CreateProcessAsync(GameVersion, new MLaunchOption
             {
-                ["game_directory"] = ModpackDir,
-            },
-            Session = MSession.CreateOfflineSession(App.Instance.Account.Username),
-            JavaPath = string.IsNullOrEmpty(App.Instance.AppSettings.JavaPath) ? null : App.Instance.AppSettings.JavaPath,
-            MinimumRamMb = App.Instance.AppSettings.MinJavaSizeMb,
-            MaximumRamMb = App.Instance.AppSettings.MaxJavaSizeMb,
-        });
+                ArgumentDictionary = new Dictionary<string, string>
+                {
+                    ["game_directory"] = ModpackDir,
+                },
+                Session = MSession.CreateOfflineSession(App.Instance.Account.Username),
+                JavaPath = string.IsNullOrEmpty(App.Instance.AppSettings.JavaPath) ? null : App.Instance.AppSettings.JavaPath,
+                MinimumRamMb = App.Instance.AppSettings.MinJavaSizeMb,
+                MaximumRamMb = App.Instance.AppSettings.MaxJavaSizeMb,
+            });
             
-        proc.StartInfo.RedirectStandardOutput = true;
-        proc.StartInfo.RedirectStandardError = true;
-        proc.StartInfo.UseShellExecute = false;
+            _runProcess.StartInfo.RedirectStandardOutput = true;
+            _runProcess.StartInfo.RedirectStandardError = true;
+            _runProcess.StartInfo.UseShellExecute = false;
             
-        proc.OutputDataReceived += (_, args) =>
-        {
-            if (args.Data != null) 
-                Console.WriteLine(args.Data);
-        };
+            // Discard default output
+            _runProcess.OutputDataReceived += (_, _) => { };
+            _runProcess.ErrorDataReceived += (_, _) => { };
+            
+            if (_cts.IsCancellationRequested)
+                return;
+            
+            using var watcher = new LogFileWatcher(App.Instance.LatestLogFile);
+            watcher.LinePrint += Console.WriteLine;
+            
+            _runProcess.Start();
 
-        proc.ErrorDataReceived += (_, args) =>
+            _runProcess.BeginOutputReadLine();
+            _runProcess.BeginErrorReadLine();
+            
+            var ctsTask = Task.Run(() =>
+            {
+                while (!_cts.IsCancellationRequested && !_runProcess.HasExited)
+                {
+                    Thread.Sleep(100);
+                }
+                
+                if (_runProcess is { HasExited: false })
+                {
+                    _runProcess.Kill();
+                }
+            });
+
+            _runProcess.WaitForExit();
+            
+            // Cleanup
+            await ctsTask;
+            
+            _cts = null;
+            _runProcess = null;
+        }
+        catch (Exception e)
         {
-            if (args.Data != null) 
-                Console.Error.WriteLine(args.Data);
-        };
-            
-        proc.Start();
-            
-        proc.BeginOutputReadLine();
-        proc.BeginErrorReadLine();
-            
-        proc.WaitForExit();
+            Console.Error.WriteLine(e);
+        }
             
         CurrentTask = RepoTaskType.None;
+    }
+
+    public void CancelCurrentTask()
+    {
+        if (_cts != null)
+        {
+            _cts.Cancel();
+        }
     }
 
     private void UpdateProgress(float progress, string message = "")

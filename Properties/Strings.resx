@@ -20,12 +20,6 @@
     </resheader>
     <resheader name="GeneratedClassName">Resources</resheader>
     <resheader name="AccessModifier">Public</resheader>
-    <data name="Update_Title" xml:space="preserve">
-        <value>Update</value>
-    </data>
-    <data name="Play_Title" xml:space="preserve">
-        <value>Play</value>
-    </data>
     <data name="Account_Logout" xml:space="preserve">
         <value>Logout</value>
     </data>
@@ -46,5 +40,47 @@
     </data>
     <data name="Setting_MaxRAM" xml:space="preserve">
         <value>Max RAM (MB)</value>
+    </data>
+    <data name="Dialog_Ok" xml:space="preserve">
+        <value>Ok</value>
+    </data>
+    <data name="Dialog_Cancel" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
+    <data name="JavaBrowser_Title" xml:space="preserve">
+        <value>Java Browser</value>
+    </data>
+    <data name="Action_Fetching" xml:space="preserve">
+        <value>Fetching...</value>
+    </data>
+    <data name="Action_Install" xml:space="preserve">
+        <value>Install</value>
+    </data>
+    <data name="Action_Update" xml:space="preserve">
+        <value>Update</value>
+    </data>
+    <data name="Action_Cancel" xml:space="preserve">
+        <value>Cancel</value>
+    </data>
+    <data name="Action_Run" xml:space="preserve">
+        <value>Play</value>
+    </data>
+    <data name="Action_Stop" xml:space="preserve">
+        <value>Stop</value>
+    </data>
+    <data name="Progress_Preparing" xml:space="preserve">
+        <value>Preparing...</value>
+    </data>
+    <data name="Progress_InstallingMinecraft" xml:space="preserve">
+        <value>Installing Minecraft: {0} / {1}</value>
+    </data>
+    <data name="Progress_UpdatingModpack" xml:space="preserve">
+        <value>Updating modpack: {0} / {1}</value>
+    </data>
+    <data name="Progress_InstallingModpack" xml:space="preserve">
+        <value>Installing modpack: {0} / {1}</value>
+    </data>
+    <data name="Progress_Error_Loader" xml:space="preserve">
+        <value>Failed to find loader</value>
     </data>
 </root>

@@ -4,6 +4,9 @@
              xmlns:local="clr-namespace:MineLauncher"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <local:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter"/>
+        <local:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+        <local:NotNullToBooleanConverter x:Key="NotNullToBooleanConverter"/>
     </Application.Resources>
 </Application>

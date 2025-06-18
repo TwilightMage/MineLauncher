@@ -58,12 +58,12 @@ namespace MineLauncher
             set {
                 if (SetField(ref _language, value))
                 {
-                    OnLanguageChanged?.Invoke();
+                    LanguageChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnLanguageChanged;
+        public event Action LanguageChanged;
         
         public Language GetUsedLanguage()
         {
@@ -88,12 +88,12 @@ namespace MineLauncher
             set {
                 if (SetField(ref _installDir, value))
                 {
-                    OnInstallDirChanged?.Invoke();
+                    InstallDirChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnInstallDirChanged;
+        public event Action InstallDirChanged;
         
         private string _repo;
         [SerializableSetting]
@@ -104,12 +104,12 @@ namespace MineLauncher
             {
                 if (SetField(ref _repo, value))
                 {
-                    OnRepoChanged?.Invoke();
+                    RepoChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnRepoChanged;
+        public event Action RepoChanged;
         
         private string _javaPath;
         [SerializableSetting]
@@ -120,12 +120,12 @@ namespace MineLauncher
             {
                 if (SetField(ref _javaPath, value))
                 {
-                    OnJavaPathChanged?.Invoke();
+                    JavaPathChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnJavaPathChanged;
+        public event Action JavaPathChanged;
         
         private int _minJavaSizeMb = 4 * 1024;
         [SerializableSetting]
@@ -136,12 +136,12 @@ namespace MineLauncher
             {
                 if (SetField(ref _minJavaSizeMb, value))
                 {
-                    OnMinJavaSizeChanged?.Invoke();
+                    MinJavaSizeChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnMinJavaSizeChanged;
+        public event Action MinJavaSizeChanged;
         
         private int _maxJavaSizeMb = 4 * 1024;
         [SerializableSetting]
@@ -152,12 +152,12 @@ namespace MineLauncher
             {
                 if (SetField(ref _maxJavaSizeMb, value))
                 {
-                    OnMaxJavaSizeChanged?.Invoke();
+                    MaxJavaSizeChanged?.Invoke();
                     Save();
                 }
             }
         }
-        public event Action OnMaxJavaSizeChanged;
+        public event Action MaxJavaSizeChanged;
 
         IEnumerable<PropertyInfo> GetSerializableProperties() => GetType().GetProperties()
             .Where(prop => prop.GetCustomAttributes(typeof(SerializableSetting), false).Any());

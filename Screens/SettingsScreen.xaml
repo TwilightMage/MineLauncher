@@ -1,12 +1,13 @@
-﻿<UserControl x:Class="MineLauncher.SettingsScreen"
+﻿<UserControl x:Class="MineLauncher.Screens.SettingsScreen"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:MineLauncher"
+             xmlns:launcher="clr-namespace:MineLauncher"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:properties="clr-namespace:MineLauncher.Properties"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:materialIcons="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="400"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
@@ -15,11 +16,11 @@
                             MethodName="GetValues"
                             ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:Language"/>
+                <x:Type TypeName="launcher:Language"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     
-        <local:LanguageDisplayConverter x:Key="LanguageDisplayConverter"/>
+        <launcher:LanguageDisplayConverter x:Key="LanguageDisplayConverter"/>
     </UserControl.Resources>
     <StackPanel Grid.IsSharedSizeScope="True" Margin="2">
         <Grid Margin="2">
@@ -46,18 +47,22 @@
                 <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="{x:Static properties:Strings.Setting_InstallDir}"/>
-            <TextBox Grid.Column="1" Text="{Binding Settings.InstallDir, Mode=TwoWay}" Margin="0, 0, 2, 0"/>
-            <Button Grid.Column="2" Command="{Binding BrowseInstallDir}">...</Button>
+            <TextBox Grid.Column="1" Text="{Binding Settings.InstallDir, Mode=TwoWay}"/>
+            <Button Grid.Column="2" Command="{Binding BrowseInstallDir}" Margin="2, 0, 0, 0">...</Button>
         </Grid>
         <Grid Margin="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="SG"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="30"/>
+                <ColumnDefinition Width="30"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="{x:Static properties:Strings.Setting_JavaPath}"/>
-            <TextBox Grid.Column="1" Text="{Binding Settings.JavaPath, Mode=TwoWay}" Margin="0, 0, 2, 0"/>
-            <Button Grid.Column="2" Command="{Binding BrowseJavaPath}">...</Button>
+            <TextBox Grid.Column="1" Text="{Binding Settings.JavaPath, Mode=TwoWay}"/>
+            <Button Grid.Column="2" Command="{Binding OpenJavaPathWizard}" Margin="2, 0, 0, 0">
+                <materialIcons:MaterialIcon Kind="Search"/>
+            </Button>
+            <Button Grid.Column="3" Command="{Binding BrowseJavaPath}" Margin="2, 0, 0, 0">...</Button>
         </Grid>
         <Grid Margin="2">
             <Grid.ColumnDefinitions>

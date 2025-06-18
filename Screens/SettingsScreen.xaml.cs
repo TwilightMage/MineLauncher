@@ -1,7 +1,8 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Input;
+using MineLauncher.Commands;
 
-namespace MineLauncher;
+namespace MineLauncher.Screens;
 
 public partial class SettingsScreen : UserControl
 {
@@ -40,6 +41,17 @@ public partial class SettingsScreen : UserControl
         if (result.ToString() != string.Empty)  
         {  
             App.Instance.AppSettings.JavaPath = dialog.FileName;  
+        }
+    });
+
+    private ICommand _openJavaPathWizard;
+
+    public ICommand OpenJavaPathWizard => _openJavaPathWizard ??= new RelayCommand(() =>
+    {
+        var wizard = new JavaBrowser();
+        if (wizard.ShowDialog() == true)
+        {
+            App.Instance.AppSettings.JavaPath = wizard.SelectedPath;
         }
     });
 }

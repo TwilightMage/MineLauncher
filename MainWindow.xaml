@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:MineLauncher"
         xmlns:materialIcons="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
         xmlns:properties="clr-namespace:MineLauncher.Properties"
+        xmlns:screens="clr-namespace:MineLauncher.Screens"
         mc:Ignorable="d"
         Title="MineLauncher" Height="600" Width="800"
         MinHeight="600" MinWidth="800"
@@ -38,13 +39,10 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:MainTab Checked="ModpackTabChecked" GroupItemName="{Binding Key}">
+                            <local:MainTab GroupItemName="{Binding Key}">
                                 <TextBlock Text="{Binding Title}"/>
                                 <local:MainTab.Screen>
-                                    <!-- Define your screen content here -->
-                                    <Border Background="HotPink">
-                                        <TextBlock Text="Modpack stuff here" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    <screens:ModpackGenericScreen/>
                                 </local:MainTab.Screen>
                             </local:MainTab>
                         </DataTemplate>
@@ -55,15 +53,13 @@
                     <local:MainTab GroupItemName="settings">
                         <materialIcons:MaterialIcon Kind="Settings" Margin="5"/>
                         <local:MainTab.Screen>
-                            <local:SettingsScreen/>
+                            <screens:SettingsScreen/>
                         </local:MainTab.Screen>
                     </local:MainTab>
                     <local:MainTab GroupItemName="account">
                         <local:AccountWidget/>
                         <local:MainTab.Screen>
-                            <Border Background="DeepPink">
-                                <TextBlock Text="Account stuff here" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
+                            <screens:AccountScreen/>
                         </local:MainTab.Screen>
                     </local:MainTab>
                 </StackPanel>
@@ -80,23 +76,9 @@
             <Grid>
                 <ProgressBar Value="{Binding SelectedRepo.RepoUpdateProgress, Source={x:Static local:App.Instance}, Mode=OneWay}"/>
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Button Click="ActionClicked" Width="150" Height="30" IsEnabled="{Binding Source={x:Static local:App.Instance}, Path=SelectedRepo.CanDispatchTask}">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <!-- Default value (false case) -->
-                                <Setter Property="Content" Value="{x:Static properties:Strings.Update_Title}"/>
-            
-                                <!-- When true -->
-                                <Style.Triggers>
-                                    <DataTrigger 
-                                        Binding="{Binding Source={x:Static local:App.Instance}, Path=SelectedRepo.IsUpToDate}" 
-                                        Value="True">
-                                        <Setter Property="Content" Value="{x:Static properties:Strings.Play_Title}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                    <Button Width="150" Height="30"
+                            Command="{Binding ActionCommand}"
+                            Content="{Binding ActionCommand.Name}"/>
                     <TextBlock
                         Text="{Binding SelectedRepo.RepoUpdateProgressText, Source={x:Static local:App.Instance}}"
                         Visibility="{Binding SelectedRepo.RepoUpdateProgressTextVisibility, Source={x:Static local:App.Instance}}"

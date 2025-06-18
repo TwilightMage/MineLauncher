@@ -22,7 +22,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" MinWidth="30" MinHeight="30" VerticalAlignment="Center" Background="LightGray" Margin="4, 0, 0, 0">
+                                <Border Grid.Column="0" MinWidth="30" MinHeight="30" VerticalAlignment="Center" Background="LightGray">
                                     <Image Width="30" Height="30"/>
                                 </Border>
                                 <TextBlock Grid.Column="1" VerticalAlignment="Center" 
@@ -33,8 +33,7 @@
                                         Command="{Binding Path=LogoutCommand}"
                                         Background="Transparent" 
                                         BorderBrush="Transparent" 
-                                        ToolTip="{x:Static properties:Strings.Account_Logout}"
-                                        Margin="0, 0, 4, 0">
+                                        ToolTip="{x:Static properties:Strings.Account_Logout}">
                                     <materialIcons:MaterialIcon Kind="Logout" Margin="5"/>
                                 </Button>
                             </Grid>
@@ -46,9 +45,7 @@
                         <DataTrigger Binding="{Binding Path=Account}" Value="{x:Null}">
                             <Setter Property="Content">
                                 <Setter.Value>
-                                    <Button VerticalAlignment="Center" Command="{Binding Path=LoginCommand}">
-                                        <TextBlock Text="{x:Static properties:Strings.Account_Login}"/>
-                                    </Button>
+                                    <TextBlock Text="{x:Static properties:Strings.Account_Login}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
