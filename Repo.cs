@@ -11,13 +11,23 @@ using System.Windows;
 using CmlLib.Core.Auth;
 using CmlLib.Core.ProcessBuilder;
 using LibGit2Sharp;
+using MineLauncher.Loaders;
 using Version = System.Version;
 
 namespace MineLauncher;
 
+public class RepoInfo
+{
+    public string Key { get; set; }
+    public Dictionary<Language, string> TitleByLanguage { get; set; }
+    public string Loader { get; set; }
+    public Version MCVersion { get; set; }
+    public Version LoaderVersion { get; set; }
+    public string RepoUrl { get; set; }
+}
+
 public class Repo : INotifyPropertyChanged
 {
-    
     public enum RepoTaskType
     {
         None,
@@ -26,36 +36,25 @@ public class Repo : INotifyPropertyChanged
         Running,
     }
 
-    public Repo()
+    public Repo(RepoInfo info)
     {
-        App.Instance.AppSettings.LanguageChanged += () => OnPropertyChanged(nameof(Title));
-    }
+        Info = info;
         
-    public string Key { get; set; }
-
-    public string Title
-    {
-        get
-        {
-            var lang = App.Instance.AppSettings.GetUsedLanguage();
-            if (TitleByLanguage.TryGetValue(lang, out var title))
-                return title;
-            return TitleByLanguage[Language.English];
-        }
+        App.Instance.AppSettings.LanguageChanged += () => OnPropertyChanged(nameof(Title));
+        
+        Loader = LoaderManager.GetLoader(info.Loader);
+        GameVersion = Loader.GameVersion(Info.MCVersion, Info.LoaderVersion);
     }
-    public Dictionary<Language, string> TitleByLanguage;
-    
-    public string Loader { get; set; }
-    public Version MCVersion { get; set; }
-    public Version LoaderVersion { get; set; }
-    public string GameVersion { get; private set; }
-    public string RepoUrl { get; set; }
-    public string Changelog { get; set; }
+
+    public RepoInfo Info { get; private set; }
+
+    public string Title => Info.TitleByLanguage.TryGetValue(App.Instance.AppSettings.GetUsedLanguage(), out var title) ? title : Info.TitleByLanguage[Language.English];
+    public LoaderBase Loader { get; }
+    public string GameVersion { get; }
     public Repository GitRepo { get; private set; }
 
     private RepoTaskType _currentTask = RepoTaskType.None;
-
-    public RepoTaskType CurrentTask // do not change outside the active task
+    public RepoTaskType CurrentTask
     {
         get => _currentTask;
         set
@@ -100,7 +99,7 @@ public class Repo : INotifyPropertyChanged
         
     public bool Running { get; set; }
         
-    public string RepoDir => Path.Combine(App.Instance.AppSettings.InstallDir, Key);
+    public string RepoDir => Path.Combine(App.Instance.AppSettings.InstallDir, Info.Key);
         
     public string ModpackDir => Path.Combine(RepoDir, ".minecraft");
     public string ModsDir => Path.Combine(ModpackDir, "mods");
@@ -126,26 +125,29 @@ public class Repo : INotifyPropertyChanged
         if (CurrentTask != RepoTaskType.None)
             return;
         CurrentTask = RepoTaskType.Fetching;
-            
-        GameVersion = Loaders.Manager.GetLoader(Loader).GameVersion(MCVersion, LoaderVersion);
+        
+        Console.WriteLine($"Fetching {Info.Key}");
             
         GitRepo = null;
         try
         {
             GitRepo = new Repository(RepoDir); // Fails if repo dir not valid, e.g. not cloned yet
-                
-            var options = new FetchOptions
-            {
-                Prune = true,
-                TagFetchMode = TagFetchMode.Auto,
-            };
-                
-            GitRepo.Network.Remotes.Update("origin", updater => updater.Url = RepoUrl);
 
-            var remote = GitRepo.Network.Remotes["origin"];
-            var msg = "Fetching remote";
-            var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
-            LibGit2Sharp.Commands.Fetch(GitRepo, remote.Name, refSpecs, options, msg);
+            await Task.Run(() =>
+            {
+                var options = new FetchOptions
+                {
+                    Prune = true,
+                    TagFetchMode = TagFetchMode.Auto,
+                };
+                
+                GitRepo.Network.Remotes.Update("origin", updater => updater.Url = Info.RepoUrl);
+
+                var remote = GitRepo.Network.Remotes["origin"];
+                var msg = "Fetching remote";
+                var refSpecs = remote.FetchRefSpecs.Select(x => x.Specification);
+                LibGit2Sharp.Commands.Fetch(GitRepo, remote.Name, refSpecs, options, msg);
+            });
 
             if (IsUpToDate)
             {
@@ -162,12 +164,14 @@ public class Repo : INotifyPropertyChanged
 
     public async Task Update()
     {
-        if (string.IsNullOrEmpty(App.Instance.AppSettings.InstallDir) || string.IsNullOrEmpty(RepoUrl))
+        if (string.IsNullOrEmpty(App.Instance.AppSettings.InstallDir) || string.IsNullOrEmpty(Info.RepoUrl))
             return;
             
         if (CurrentTask != RepoTaskType.None)
             return;
         CurrentTask = RepoTaskType.Updating;
+        
+        Console.WriteLine($"Updating {Info.Key}");
 
         _cts = new CancellationTokenSource();
             
@@ -176,9 +180,9 @@ public class Repo : INotifyPropertyChanged
         {
             UpdateProgress(0, Properties.Strings.Progress_Preparing);
             
-            if (Loaders.Manager.GetLoader(Loader) is { } loader)
+            if (Loaders.LoaderManager.GetLoader(Info.Loader) is { } loader)
             {
-                await loader.Install(App.Instance.Cml, MCVersion, (progressedBytes, totalBytes) =>
+                await loader.Install(App.Instance.Cml, Info.MCVersion, Info.LoaderVersion, (progressedBytes, totalBytes) =>
                 {
                     UpdateProgress((float)progressedBytes / totalBytes * 100, Properties.Strings.Progress_InstallingMinecraft.FormatInline(Utils.FormatSize(progressedBytes), Utils.FormatSize(totalBytes)));
                 }, _cts);
@@ -208,7 +212,7 @@ public class Repo : INotifyPropertyChanged
             {
                 await Task.Run(() =>
                 {
-                    Repository.Clone(RepoUrl, RepoDir, new CloneOptions
+                    Repository.Clone(Info.RepoUrl, RepoDir, new CloneOptions
                     {
                         OnCheckoutProgress = (_, steps, totalSteps) =>
                         {
@@ -253,6 +257,8 @@ public class Repo : INotifyPropertyChanged
         if (CurrentTask != RepoTaskType.None)
             return;
         CurrentTask = RepoTaskType.Running;
+        
+        Console.WriteLine($"Running {Info.Key}");
 
         try
         {
@@ -280,9 +286,6 @@ public class Repo : INotifyPropertyChanged
             
             if (_cts.IsCancellationRequested)
                 return;
-            
-            using var watcher = new LogFileWatcher(App.Instance.LatestLogFile);
-            watcher.LinePrint += Console.WriteLine;
             
             _runProcess.Start();
 

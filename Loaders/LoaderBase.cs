@@ -7,6 +7,8 @@ namespace MineLauncher.Loaders;
 
 public abstract class LoaderBase
 {
-    public abstract Task Install(MinecraftLauncher cml, Version version, Action<ulong, ulong> progressCallback, CancellationTokenSource cts);
+    public abstract Task Install(MinecraftLauncher cml, Version version, Version loaderVersion,
+        Action<ulong, ulong> progressCallback,
+        CancellationTokenSource cts);
     public abstract string GameVersion(Version mcVersion, Version loaderVersion);
 }

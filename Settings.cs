@@ -58,8 +58,8 @@ namespace MineLauncher
             set {
                 if (SetField(ref _language, value))
                 {
-                    LanguageChanged?.Invoke();
                     Save();
+                    LanguageChanged?.Invoke();
                 }
             }
         }
@@ -88,8 +88,8 @@ namespace MineLauncher
             set {
                 if (SetField(ref _installDir, value))
                 {
-                    InstallDirChanged?.Invoke();
                     Save();
+                    InstallDirChanged?.Invoke();
                 }
             }
         }
@@ -104,8 +104,8 @@ namespace MineLauncher
             {
                 if (SetField(ref _repo, value))
                 {
-                    RepoChanged?.Invoke();
                     Save();
+                    RepoChanged?.Invoke();
                 }
             }
         }
@@ -120,8 +120,8 @@ namespace MineLauncher
             {
                 if (SetField(ref _javaPath, value))
                 {
-                    JavaPathChanged?.Invoke();
                     Save();
+                    JavaPathChanged?.Invoke();
                 }
             }
         }
@@ -136,8 +136,8 @@ namespace MineLauncher
             {
                 if (SetField(ref _minJavaSizeMb, value))
                 {
-                    MinJavaSizeChanged?.Invoke();
                     Save();
+                    MinJavaSizeChanged?.Invoke();
                 }
             }
         }
@@ -152,8 +152,8 @@ namespace MineLauncher
             {
                 if (SetField(ref _maxJavaSizeMb, value))
                 {
-                    MaxJavaSizeChanged?.Invoke();
                     Save();
+                    MaxJavaSizeChanged?.Invoke();
                 }
             }
         }
@@ -165,9 +165,7 @@ namespace MineLauncher
         public void Load()
         {
             // Get the directory where the executable is located
-            string exePath = Assembly.GetExecutingAssembly().Location;
-            string exeDir = Path.GetDirectoryName(exePath);
-            string iniPath = Path.Combine(exeDir, "settings.ini");
+            string iniPath = Path.Combine(App.ExeDir, "settings.ini");
 
             if (File.Exists(iniPath))
             {

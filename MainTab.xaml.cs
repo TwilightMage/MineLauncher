@@ -12,8 +12,11 @@ public partial class MainTab : RadioButton
     private static readonly Dictionary<string, Dictionary<string, MainTab>> GroupItemMap = new();
     private static readonly Dictionary<string, string> GroupItemSelections = new();
     
+    public static readonly DependencyProperty ScreenContentProperty = 
+        DependencyProperty.Register(nameof(ScreenContent), typeof(object), typeof(MainTab), new PropertyMetadata(null));
+    
     public static readonly DependencyProperty ScreenProperty = 
-        DependencyProperty.Register(nameof(Screen), typeof(object), typeof(MainTab), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(Screen), typeof(MainTabScreen), typeof(MainTab), new PropertyMetadata(null));
     
     public static readonly DependencyProperty GroupItemNameProperty = 
         DependencyProperty.Register(nameof(GroupItemName), typeof(string), typeof(MainTab), new PropertyMetadata((o,
@@ -31,9 +34,15 @@ public partial class MainTab : RadioButton
                 tab.IsChecked = true;
         }));
     
-    public object Screen
+    public object ScreenContent
     {
-        get => GetValue(ScreenProperty);
+        get => GetValue(ScreenContentProperty);
+        set => SetValue(ScreenContentProperty, value);
+    }
+    
+    public MainTabScreen Screen
+    {
+        get => (MainTabScreen)GetValue(ScreenProperty);
         set => SetValue(ScreenProperty, value);
     }
     
@@ -122,9 +131,9 @@ public partial class MainTab : RadioButton
     
     private void MainTab_Checked(object sender, RoutedEventArgs e)
     {
-        if (Window.GetWindow(this) is MainWindow mainWindow)
+        if (Screen is not null && ScreenContent is not null)
         {
-            mainWindow.SelectedScreen = Screen;
+            Screen.ScreenContent = ScreenContent;
         }
         
         GroupItemSelections[GroupName] = GroupItemName;

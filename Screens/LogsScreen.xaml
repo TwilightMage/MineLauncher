@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="MineLauncher.Screens.LogsScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:screens="clr-namespace:MineLauncher.Screens"
+             xmlns:launcher="clr-namespace:MineLauncher"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="400"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+        </Grid>
+        <ListView x:Name="ListViewWidget" Grid.Row="1" Margin="4"
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  ScrollViewer.CanContentScroll="True"
+                  SelectionMode="Extended"
+                  ItemsSource="{Binding Source={x:Static launcher:App.Instance}, Path=LogWatcher}">
+            <ListView.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Copy" Command="{Binding CopyLogCommand}"/>
+                </ContextMenu>
+            </ListView.ContextMenu>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <launcher:LogEntry LogLine="{Binding}"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Button Grid.Row="2" Margin="4"
+                Command="{Binding OpenLatestLogCommand}">
+            <TextBlock Text="Open latest.log"/>
+        </Button>
+    </Grid>
+</UserControl>

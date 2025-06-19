@@ -152,11 +152,17 @@
         <Compile Include="JavaUtils.cs" />
         <Compile Include="Loaders\ForgeLoader.cs" />
         <Compile Include="Loaders\LoaderBase.cs" />
-        <Compile Include="Loaders\Manager.cs" />
+        <Compile Include="Loaders\LoaderManager.cs" />
         <Compile Include="Loaders\VanillaLoader.cs" />
+        <Compile Include="LogEntry.xaml.cs">
+          <DependentUpon>LogEntry.xaml</DependentUpon>
+        </Compile>
         <Compile Include="LogFileWatcher.cs" />
         <Compile Include="MainTab.xaml.cs">
           <DependentUpon>MainTab.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="MainTabScreen.xaml.cs">
+          <DependentUpon>MainTabScreen.xaml</DependentUpon>
         </Compile>
         <Compile Include="Properties\Strings.Designer.cs">
           <DesignTime>True</DesignTime>
@@ -172,6 +178,9 @@
         <Compile Include="Screens\AccountScreen.xaml.cs">
           <DependentUpon>AccountScreen.xaml</DependentUpon>
         </Compile>
+        <Compile Include="Screens\LogsScreen.xaml.cs">
+          <DependentUpon>LogsScreen.xaml</DependentUpon>
+        </Compile>
         <Compile Include="Screens\ModpackGenericScreen.xaml.cs">
           <DependentUpon>ModpackGenericScreen.xaml</DependentUpon>
         </Compile>
@@ -182,7 +191,9 @@
         <Compile Include="Utils.cs" />
         <Page Include="AccountWidget.xaml" />
         <Page Include="JavaBrowser.xaml" />
+        <Page Include="LogEntry.xaml" />
         <Page Include="MainTab.xaml" />
+        <Page Include="MainTabScreen.xaml" />
         <Page Include="MainWindow.xaml">
             <Generator>MSBuild:Compile</Generator>
             <SubType>Designer</SubType>
@@ -196,6 +207,7 @@
             <SubType>Code</SubType>
         </Compile>
         <Page Include="Screens\AccountScreen.xaml" />
+        <Page Include="Screens\LogsScreen.xaml" />
         <Page Include="Screens\ModpackGenericScreen.xaml" />
         <Page Include="Screens\SettingsScreen.xaml" />
     </ItemGroup>
@@ -224,6 +236,12 @@
     <ItemGroup>
         <None Include="App.config" />
         <None Include="packages.config" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="Dummy\Dummy.csproj">
+        <Project>{876dd8ba-f8e7-4921-ad2c-d4b554fc1928}</Project>
+        <Name>Dummy</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

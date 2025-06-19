@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Input;
+using System.Threading.Tasks;
 using MineLauncher.Commands;
 
 namespace MineLauncher;
@@ -12,30 +11,12 @@ namespace MineLauncher;
 /// </summary>
 public partial class MainWindow : INotifyPropertyChanged
 {
-    public static readonly DependencyProperty SelectedScreenProperty =
-        DependencyProperty.Register(nameof(SelectedScreen), typeof(object), typeof(MainWindow), 
-            new PropertyMetadata(null));
-
-    public object SelectedScreen
-    {
-        get { return GetValue(SelectedScreenProperty); }
-        set { SetValue(SelectedScreenProperty, value); }
-    }
-    
     public MainWindow()
     {
         InitializeComponent();
         
         App.Instance.SelectedRepoChanged += () => OnPropertyChanged(nameof(ActionCommand));
         App.Instance.SelectedRepoTaskChanged += () => OnPropertyChanged(nameof(ActionCommand));
-    }
-
-    private void ActionClicked(object sender, RoutedEventArgs e)
-    {
-        if (App.Instance.SelectedRepo.IsUpToDate)
-            App.Instance.SelectedRepo.Run();
-        else
-            App.Instance.SelectedRepo.Update();
     }
     
     private readonly FakeCommand _fetchingCommand = new FakeCommand(
@@ -53,7 +34,7 @@ public partial class MainWindow : INotifyPropertyChanged
         null,
         () => Properties.Strings.Action_Cancel);
     private readonly RelayCommand _runCommand = new RelayCommand(
-        () => App.Instance.SelectedRepo?.Run(),
+        () => Task.Run(() => App.Instance.SelectedRepo?.Run()),
         null,
         () => Properties.Strings.Action_Run);
     private readonly RelayCommand _stopCommand = new RelayCommand(
@@ -61,7 +42,7 @@ public partial class MainWindow : INotifyPropertyChanged
         null,
         () => Properties.Strings.Action_Stop);
 
-    public Command ActionCommand => App.Instance.SelectedRepo.CurrentTask switch
+    public Command ActionCommand => App.Instance.SelectedRepo?.CurrentTask switch
     {
         Repo.RepoTaskType.None => App.Instance.SelectedRepo.IsUpToDate
             ? _runCommand

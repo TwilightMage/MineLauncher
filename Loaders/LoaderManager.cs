@@ -2,7 +2,7 @@
 
 namespace MineLauncher.Loaders;
 
-public static class Manager
+public static class LoaderManager
 {
     private static Dictionary<string, LoaderBase> _loaders = new()
     {

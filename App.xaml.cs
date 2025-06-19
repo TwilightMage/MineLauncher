@@ -4,7 +4,11 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,12 +19,30 @@ using Version = System.Version;
 
 namespace MineLauncher;
 
+public class VersionConverter : JsonConverter<Version>
+{
+    public override Version Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        string versionString = reader.GetString();
+        return Version.Parse(versionString);
+    }
+
+    public override void Write(Utf8JsonWriter writer, Version value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.ToString());
+    }
+}
+
+
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
 public partial class App : INotifyPropertyChanged
 {
     public MinecraftLauncher Cml { get; private set; }
+    
+    private FileSystemWatcher _watcher;
+    private Timer _watcherTimer;
     
     private Account _account;
     public Account Account
@@ -32,7 +54,7 @@ public partial class App : INotifyPropertyChanged
     public Settings AppSettings { get; private set; }
     public bool CanInstallAny => !string.IsNullOrEmpty(AppSettings.InstallDir);
 
-    public Dictionary<string, Repo> Repos { get; private set; } = new();
+    public Dictionary<string, Repo> Repos { get; } = new();
 
     private Repo _selectedRepo;
     public Repo SelectedRepo
@@ -49,30 +71,54 @@ public partial class App : INotifyPropertyChanged
     public event Action SelectedRepoChanged;
     public event Action SelectedRepoTaskChanged;
     
+    public LogFileWatcher LogWatcher { get; private set; }
+    
     public Repo RunningRepo { get; private set; }
 
-    public string MinecraftBaseDir => Path.Combine(Instance.AppSettings.InstallDir, "minecraft");
+    public string MinecraftBaseDir => Path.Combine(AppSettings.InstallDir ?? ExeDir, "minecraft");
     public string LogsDir => Path.Combine(MinecraftBaseDir, "logs");
     public string LatestLogFile => Path.Combine(LogsDir, "latest.log");
 
     public Visibility ActionPanelVisibility => MainTab.GetSelectedTabInGroup("MainTabs")?.DataContext is Repo ? Visibility.Visible : Visibility.Collapsed;
 
     public static App Instance => (App)Current;
+    public static string ExeDir => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        _watcherTimer = new(state =>
+        {
+            SelectedRepoTaskChanged?.Invoke();
+        });
+
         AppSettings = new Settings();
-            
         AppSettings.InstallDirChanged += () =>
         {
+            if (!Directory.Exists(AppSettings.InstallDir))
+                return;
+            
+            _watcher = new(AppSettings.InstallDir);
+            _watcher.Changed += (_, args) =>
+            {
+                if (args.FullPath != LatestLogFile)
+                    _watcherTimer.Change(100, Timeout.Infinite);
+            };
+            _watcher.IncludeSubdirectories = true;
+            _watcher.EnableRaisingEvents = true;
+            
+            LogWatcher = new(LatestLogFile);
+            OnPropertyChanged(nameof(LogWatcher));
+            
+            MinecraftLauncherParameters parameters = MinecraftLauncherParameters.CreateDefault(new MinecraftPath(MinecraftBaseDir));
+            Cml = new(parameters);
+            
             foreach (var repo in Repos)
             {
                 repo.Value.FetchVersion();
             }
         };
-
         AppSettings.LanguageChanged += () =>
         {
             switch (AppSettings.Language)
@@ -99,7 +145,6 @@ public partial class App : INotifyPropertyChanged
                 Utils.UpdateAllLocalizationBindings(window);
             }
         };
-            
         AppSettings.Load();
         
         MainTab.SelectTabByItemName("MainTabs", AppSettings.Repo);
@@ -121,12 +166,17 @@ public partial class App : INotifyPropertyChanged
                     }
                 }
                 
+                if (Repos.TryGetValue(item, out var repo))
+                    SelectedRepo = repo;
+                
                 OnPropertyChanged(nameof(ActionPanelVisibility));
             }
         };
+    }
 
-        MinecraftLauncherParameters parameters = MinecraftLauncherParameters.CreateDefault(new MinecraftPath(MinecraftBaseDir));
-        Cml = new(parameters);
+    private void InitSettings()
+    {
+        
     }
 
     private ICommand _loginCommand;
@@ -162,37 +212,48 @@ public partial class App : INotifyPropertyChanged
             SelectedRepoTaskChanged?.Invoke();
     }
 
-    public void FetchRepos()
+    private async Task FetchRepos()
     {
-        Repos = new()
+        HttpClient client = new();
+        var response = await client.GetAsync("https://raw.githubusercontent.com/TwilightMage/MineLauncherMaster/refs/heads/main/repos.json");
+        
+        if (!response.IsSuccessStatusCode)
+            return;
+        
+        var json = await response.Content.ReadAsStringAsync();
+        
+        var options = new JsonSerializerOptions
         {
-            ["techno_magic"] = new()
-            {
-                TitleByLanguage = new()
-                {
-                    [Language.English] = "Techno-Magic",
-                    [Language.Russian] = "Техно-Магия"
-                },
-                Loader = "forge",
-                MCVersion = new Version(1, 12, 2),
-                LoaderVersion = new Version(14, 23, 5, 2859),
-                RepoUrl = "https://github.com/deaddarkus4/techo-magic-1.12.2",
-            }
+            PropertyNameCaseInsensitive = true,
+            Converters = { new VersionConverter() }
         };
 
-        foreach (var repo in Repos)
+
+        if (System.Text.Json.Nodes.JsonNode.Parse(json) is { } jsonNode)
         {
-            repo.Value.Key = repo.Key;
-            repo.Value.FetchVersion();
-            repo.Value.CurrentTaskChanged += RepoTaskChanged; 
+            foreach (var child in jsonNode.AsObject())
+            {
+                RepoInfo info = child.Value.Deserialize<RepoInfo>(options);
+                info.Key = child.Key;
+                var repo = new Repo(info);
+                Repos.Add(child.Key, repo);
+
+                repo.CurrentTaskChanged += RepoTaskChanged;
+                repo.FetchVersion();
+            }
         }
 
-        if (Repos.TryGetValue(AppSettings.Repo ?? "", out var foundRepo))
-            SelectedRepo = foundRepo;
-        else
+        if (Repos.Count > 0)
         {
-            SelectedRepo = Repos.FirstOrDefault().Value;
-            AppSettings.Repo = SelectedRepo.Key;
+            if (Repos.TryGetValue(AppSettings.Repo ?? "", out var foundRepo))
+                SelectedRepo = foundRepo;
+            else
+            {
+                SelectedRepo = Repos.FirstOrDefault().Value;
+                AppSettings.Repo = SelectedRepo.Info.Key;
+            }
+            
+            MainTab.SelectTabByItemName("MainTabs", SelectedRepo.Info.Key);
         }
     }
     
