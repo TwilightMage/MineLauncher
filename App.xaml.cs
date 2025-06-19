@@ -69,7 +69,7 @@ public partial class App : INotifyPropertyChanged
         }
     }
     public event Action SelectedRepoChanged;
-    public event Action SelectedRepoTaskChanged;
+    public event Action SelectedRepoStateChanged;
     
     public LogFileWatcher LogWatcher { get; private set; }
     
@@ -90,7 +90,7 @@ public partial class App : INotifyPropertyChanged
 
         _watcherTimer = new(state =>
         {
-            SelectedRepoTaskChanged?.Invoke();
+            SelectedRepoStateChanged?.Invoke();
         });
 
         AppSettings = new Settings();
@@ -201,15 +201,15 @@ public partial class App : INotifyPropertyChanged
         }
     });
 
-    private void RepoTaskChanged(Repo repo)
+    private void RepoStateChanged(Repo repo)
     {
-        if (repo.CurrentTask == Repo.RepoTaskType.Running)
+        if (repo.CurrentState == Repo.RepoStateType.Running)
             RunningRepo = repo;
         else if (repo == RunningRepo)
             RunningRepo = null;
         
         if (repo == SelectedRepo)
-            SelectedRepoTaskChanged?.Invoke();
+            SelectedRepoStateChanged?.Invoke();
     }
 
     private async Task FetchRepos()
@@ -238,7 +238,7 @@ public partial class App : INotifyPropertyChanged
                 var repo = new Repo(info);
                 Repos.Add(child.Key, repo);
 
-                repo.CurrentTaskChanged += RepoTaskChanged;
+                repo.CurrentStateChanged += RepoStateChanged;
                 repo.FetchVersion();
             }
         }

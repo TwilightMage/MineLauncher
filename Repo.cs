@@ -28,7 +28,7 @@ public class RepoInfo
 
 public class Repo : INotifyPropertyChanged
 {
-    public enum RepoTaskType
+    public enum RepoStateType
     {
         None,
         Fetching,
@@ -53,19 +53,19 @@ public class Repo : INotifyPropertyChanged
     public string GameVersion { get; }
     public Repository GitRepo { get; private set; }
 
-    private RepoTaskType _currentTask = RepoTaskType.None;
-    public RepoTaskType CurrentTask
+    private RepoStateType _currentState = RepoStateType.None;
+    public RepoStateType CurrentState
     {
-        get => _currentTask;
+        get => _currentState;
         set
         {
-            if (SetField(ref _currentTask, value))
+            if (SetField(ref _currentState, value))
             {
-                CurrentTaskChanged?.Invoke(this);
+                CurrentStateChanged?.Invoke(this);
             }
         }
     }
-    public event Action<Repo> CurrentTaskChanged;
+    public event Action<Repo> CurrentStateChanged;
 
     public bool IsLoaderInstalled => Directory.Exists(Path.Combine(App.Instance.MinecraftBaseDir, "versions", GameVersion));
     public bool IsModPackUpToDate => GitRepo != null && GitRepo.Head.Tip.Sha == GitRepo.Branches["main"].Tip.Sha;
@@ -122,9 +122,9 @@ public class Repo : INotifyPropertyChanged
 
     public async Task FetchVersion()
     {
-        if (CurrentTask != RepoTaskType.None)
+        if (CurrentState != RepoStateType.None)
             return;
-        CurrentTask = RepoTaskType.Fetching;
+        CurrentState = RepoStateType.Fetching;
         
         Console.WriteLine($"Fetching {Info.Key}");
             
@@ -159,7 +159,7 @@ public class Repo : INotifyPropertyChanged
             // ignored
         }
 
-        CurrentTask = RepoTaskType.None;
+        CurrentState = RepoStateType.None;
     }
 
     public async Task Update()
@@ -167,9 +167,9 @@ public class Repo : INotifyPropertyChanged
         if (string.IsNullOrEmpty(App.Instance.AppSettings.InstallDir) || string.IsNullOrEmpty(Info.RepoUrl))
             return;
             
-        if (CurrentTask != RepoTaskType.None)
+        if (CurrentState != RepoStateType.None)
             return;
-        CurrentTask = RepoTaskType.Updating;
+        CurrentState = RepoStateType.Updating;
         
         Console.WriteLine($"Updating {Info.Key}");
 
@@ -191,7 +191,7 @@ public class Repo : INotifyPropertyChanged
             {
                 UpdateError(Properties.Strings.Progress_Error_Loader);
                     
-                CurrentTask = RepoTaskType.None;
+                CurrentState = RepoStateType.None;
                 return;
             }
         }
@@ -199,7 +199,7 @@ public class Repo : INotifyPropertyChanged
         if (_cts.IsCancellationRequested)
         {
             UpdateProgress(100);
-            CurrentTask = RepoTaskType.None;
+            CurrentState = RepoStateType.None;
             return;
         }
         
@@ -249,14 +249,14 @@ public class Repo : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsUpToDate));
         });
             
-        CurrentTask = RepoTaskType.None;
+        CurrentState = RepoStateType.None;
     }
 
     public async Task Run()
     {
-        if (CurrentTask != RepoTaskType.None)
+        if (CurrentState != RepoStateType.None)
             return;
-        CurrentTask = RepoTaskType.Running;
+        CurrentState = RepoStateType.Running;
         
         Console.WriteLine($"Running {Info.Key}");
 
@@ -318,7 +318,7 @@ public class Repo : INotifyPropertyChanged
             Console.Error.WriteLine(e);
         }
             
-        CurrentTask = RepoTaskType.None;
+        CurrentState = RepoStateType.None;
     }
 
     public void CancelCurrentTask()

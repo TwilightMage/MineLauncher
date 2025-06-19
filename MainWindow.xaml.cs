@@ -16,7 +16,7 @@ public partial class MainWindow : INotifyPropertyChanged
         InitializeComponent();
         
         App.Instance.SelectedRepoChanged += () => OnPropertyChanged(nameof(ActionCommand));
-        App.Instance.SelectedRepoTaskChanged += () => OnPropertyChanged(nameof(ActionCommand));
+        App.Instance.SelectedRepoStateChanged += () => OnPropertyChanged(nameof(ActionCommand));
     }
     
     private readonly FakeCommand _fetchingCommand = new FakeCommand(
@@ -42,16 +42,16 @@ public partial class MainWindow : INotifyPropertyChanged
         null,
         () => Properties.Strings.Action_Stop);
 
-    public Command ActionCommand => App.Instance.SelectedRepo?.CurrentTask switch
+    public Command ActionCommand => App.Instance.SelectedRepo?.CurrentState switch
     {
-        Repo.RepoTaskType.None => App.Instance.SelectedRepo.IsUpToDate
+        Repo.RepoStateType.None => App.Instance.SelectedRepo.IsUpToDate
             ? _runCommand
             : App.Instance.SelectedRepo.GitRepo is null
                 ? _installCommand
                 : _updateCommand,
-        Repo.RepoTaskType.Fetching => _fetchingCommand,
-        Repo.RepoTaskType.Updating => _cancelUpdateCommand,
-        Repo.RepoTaskType.Running => _stopCommand,
+        Repo.RepoStateType.Fetching => _fetchingCommand,
+        Repo.RepoStateType.Updating => _cancelUpdateCommand,
+        Repo.RepoStateType.Running => _stopCommand,
         _ => null
     };
         
