@@ -146,24 +146,12 @@
         <Compile Include="Commands\RelayCommand.cs" />
         <Compile Include="Converters.cs" />
         <Compile Include="Extensions.cs" />
-        <Compile Include="JavaBrowser.xaml.cs">
-          <DependentUpon>JavaBrowser.xaml</DependentUpon>
-        </Compile>
         <Compile Include="JavaUtils.cs" />
         <Compile Include="Loaders\ForgeLoader.cs" />
         <Compile Include="Loaders\LoaderBase.cs" />
         <Compile Include="Loaders\LoaderManager.cs" />
         <Compile Include="Loaders\VanillaLoader.cs" />
-        <Compile Include="LogEntry.xaml.cs">
-          <DependentUpon>LogEntry.xaml</DependentUpon>
-        </Compile>
         <Compile Include="LogFileWatcher.cs" />
-        <Compile Include="MainTab.xaml.cs">
-          <DependentUpon>MainTab.xaml</DependentUpon>
-        </Compile>
-        <Compile Include="MainTabScreen.xaml.cs">
-          <DependentUpon>MainTabScreen.xaml</DependentUpon>
-        </Compile>
         <Compile Include="Properties\Strings.Designer.cs">
           <DesignTime>True</DesignTime>
           <AutoGen>True</AutoGen>
@@ -189,27 +177,39 @@
         </Compile>
         <Compile Include="Settings.cs" />
         <Compile Include="Utils.cs" />
+        <Compile Include="Widgets\LogEntry.xaml.cs">
+          <DependentUpon>LogEntry.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Widgets\MainTab.xaml.cs">
+          <DependentUpon>MainTab.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Widgets\MainTabScreen.xaml.cs">
+          <DependentUpon>MainTabScreen.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Windows\JavaBrowser.xaml.cs">
+          <DependentUpon>JavaBrowser.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Windows\MainWindow.xaml.cs">
+          <DependentUpon>MainWindow.xaml</DependentUpon>
+          <SubType>Code</SubType>
+        </Compile>
         <Page Include="AccountWidget.xaml" />
-        <Page Include="JavaBrowser.xaml" />
-        <Page Include="LogEntry.xaml" />
-        <Page Include="MainTab.xaml" />
-        <Page Include="MainTabScreen.xaml" />
-        <Page Include="MainWindow.xaml">
-            <Generator>MSBuild:Compile</Generator>
-            <SubType>Designer</SubType>
-        </Page>
         <Compile Include="App.xaml.cs">
             <DependentUpon>App.xaml</DependentUpon>
-            <SubType>Code</SubType>
-        </Compile>
-        <Compile Include="MainWindow.xaml.cs">
-            <DependentUpon>MainWindow.xaml</DependentUpon>
             <SubType>Code</SubType>
         </Compile>
         <Page Include="Screens\AccountScreen.xaml" />
         <Page Include="Screens\LogsScreen.xaml" />
         <Page Include="Screens\ModpackGenericScreen.xaml" />
         <Page Include="Screens\SettingsScreen.xaml" />
+        <Page Include="Widgets\LogEntry.xaml" />
+        <Page Include="Widgets\MainTab.xaml" />
+        <Page Include="Widgets\MainTabScreen.xaml" />
+        <Page Include="Windows\JavaBrowser.xaml" />
+        <Page Include="Windows\MainWindow.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <SubType>Designer</SubType>
+        </Page>
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Properties\AssemblyInfo.cs">

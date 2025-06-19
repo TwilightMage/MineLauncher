@@ -3,9 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MineLauncher"
+        xmlns:launcher="clr-namespace:MineLauncher"
         xmlns:materialIcons="clr-namespace:Material.Icons.WPF;assembly=Material.Icons.WPF"
-        xmlns:properties="clr-namespace:MineLauncher.Properties"
         xmlns:screens="clr-namespace:MineLauncher.Screens"
         mc:Ignorable="d"
         Title="MineLauncher" Height="600" Width="800"
@@ -31,7 +30,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
-                <ItemsControl Grid.Column="0" ItemsSource="{Binding Source={x:Static local:App.Instance}, Path=Repos.Values}">
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding Source={x:Static launcher:App.Instance}, Path=Repos.Values}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -39,58 +38,58 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:MainTab 
+                            <launcher:MainTab 
                                 Screen="{Binding ElementName=Screen}"
                                 GroupItemName="{Binding Info.Key}">
                                 <TextBlock Text="{Binding Title}"/>
-                                <local:MainTab.ScreenContent>
+                                <launcher:MainTab.ScreenContent>
                                     <screens:ModpackGenericScreen/>
-                                </local:MainTab.ScreenContent>
-                            </local:MainTab>
+                                </launcher:MainTab.ScreenContent>
+                            </launcher:MainTab>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <local:MainTab GroupItemName="logs"
+                    <launcher:MainTab GroupItemName="logs"
                                    Screen="{Binding ElementName=Screen}">
                         <materialIcons:MaterialIcon Kind="ViewList" Margin="4, 0"/>
-                        <local:MainTab.ScreenContent>
+                        <launcher:MainTab.ScreenContent>
                             <screens:LogsScreen/>
-                        </local:MainTab.ScreenContent>
-                    </local:MainTab>
-                    <local:MainTab GroupItemName="settings"
+                        </launcher:MainTab.ScreenContent>
+                    </launcher:MainTab>
+                    <launcher:MainTab GroupItemName="settings"
                                    Screen="{Binding ElementName=Screen}">
                         <materialIcons:MaterialIcon Kind="Settings" Margin="4, 0"/>
-                        <local:MainTab.ScreenContent>
+                        <launcher:MainTab.ScreenContent>
                             <screens:SettingsScreen/>
-                        </local:MainTab.ScreenContent>
-                    </local:MainTab>
-                    <local:MainTab GroupItemName="account"
+                        </launcher:MainTab.ScreenContent>
+                    </launcher:MainTab>
+                    <launcher:MainTab GroupItemName="account"
                                    Screen="{Binding ElementName=Screen}">
-                        <local:AccountWidget/>
-                        <local:MainTab.ScreenContent>
+                        <launcher:AccountWidget/>
+                        <launcher:MainTab.ScreenContent>
                             <screens:AccountScreen/>
-                        </local:MainTab.ScreenContent>
-                    </local:MainTab>
+                        </launcher:MainTab.ScreenContent>
+                    </launcher:MainTab>
                 </StackPanel>
             </Grid>
             
             <Rectangle Grid.Row="1" Fill="DarkGray"/>
             
-            <local:MainTabScreen x:Name="Screen" Grid.Row="2"/>
+            <launcher:MainTabScreen x:Name="Screen" Grid.Row="2"/>
         </Grid>
 
-        <Grid Grid.Row="1" Height="70" Visibility="{Binding ActionPanelVisibility, Source={x:Static local:App.Instance}}">
+        <Grid Grid.Row="1" Height="70" Visibility="{Binding ActionPanelVisibility, Source={x:Static launcher:App.Instance}}">
             <Grid>
-                <ProgressBar Value="{Binding SelectedRepo.RepoUpdateProgress, Source={x:Static local:App.Instance}, Mode=OneWay}"/>
+                <ProgressBar Value="{Binding SelectedRepo.RepoUpdateProgress, Source={x:Static launcher:App.Instance}, Mode=OneWay}"/>
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Button Width="150" Height="30"
                             Command="{Binding ActionCommand}"
                             Content="{Binding ActionCommand.Name}"/>
                     <TextBlock
-                        Text="{Binding SelectedRepo.RepoUpdateProgressText, Source={x:Static local:App.Instance}}"
-                        Visibility="{Binding SelectedRepo.RepoUpdateProgressTextVisibility, Source={x:Static local:App.Instance}}"
+                        Text="{Binding SelectedRepo.RepoUpdateProgressText, Source={x:Static launcher:App.Instance}}"
+                        Visibility="{Binding SelectedRepo.RepoUpdateProgressTextVisibility, Source={x:Static launcher:App.Instance}}"
                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 5, 0, 0"/>
                 </StackPanel>
             </Grid>
