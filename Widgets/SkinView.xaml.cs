@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using HelixToolkit.Wpf.SharpDX;
 using MineLauncher.BlockBench;
 using SharpDX;
@@ -14,46 +15,93 @@ namespace MineLauncher.Widgets;
 
 public partial class SkinView : Viewport3DX
 {
+    public static readonly DependencyProperty DisplayElytraProperty =
+        DependencyProperty.Register(nameof(DisplayElytra), typeof(bool), typeof(SkinView), 
+            new PropertyMetadata((o, args) =>
+            {
+                var skinView = (SkinView)o;
+                var displayElytra = (bool)args.NewValue;
+                
+                skinView.RefreshCapeElytraModelInternal(displayElytra);
+            }));
+    
+    public static readonly DependencyProperty PlayerSlimProperty =
+        DependencyProperty.Register(nameof(PlayerSlim), typeof(bool), typeof(SkinView), 
+            new PropertyMetadata((o, args) =>
+            {
+                var skinView = (SkinView)o;
+                var slim = (bool)args.NewValue;
+                
+                skinView.RefreshPlayerModelInternal(slim);
+            }));
+    
+    public static readonly DependencyProperty PlayerSkinProperty =
+        DependencyProperty.Register(nameof(PlayerSkin), typeof(Image), typeof(SkinView), 
+            new PropertyMetadata((o, args) =>
+            {
+                var skinView = (SkinView)o;
+                var playerSkin = (Image)args.NewValue;
+                
+                skinView._playerMaterial.DiffuseMap = playerSkin is not null
+                    ? skinView.CreateTexture(playerSkin)
+                    : skinView._wideProject.Textures[0].Source;
+            }));
+    
+    public static readonly DependencyProperty CapeSkinProperty =
+        DependencyProperty.Register(nameof(CapeSkin), typeof(Image), typeof(SkinView), 
+            new PropertyMetadata((o, args) =>
+            {
+                var skinView = (SkinView)o;
+                var capeSkin = (Image)args.NewValue;
+                
+                skinView._capeMaterial.DiffuseMap = capeSkin is not null
+                    ? skinView.CreateTexture(capeSkin)
+                    : skinView._capeProject.Textures[0].Source;
+                skinView.RefreshCapeElytraModelInternal(skinView.DisplayElytra);
+            }));
+
+    public bool DisplayElytra
+    {
+        get => (bool)GetValue(DisplayElytraProperty);
+        set => SetValue(DisplayElytraProperty, value);
+    }
+    
+    public bool PlayerSlim
+    {
+        get => (bool)GetValue(PlayerSlimProperty);
+        set => SetValue(PlayerSlimProperty, value);
+    }
+    
+    public Image PlayerSkin
+    {
+        get => (Image)GetValue(PlayerSkinProperty);
+        set => SetValue(PlayerSkinProperty, value);
+    }
+    
+    public Image CapeSkin
+    {
+        get => (Image)GetValue(CapeSkinProperty);
+        set => SetValue(CapeSkinProperty, value);
+    }
+    
     private record struct MaterialSignature
     {
-        public TextureModel Texture;
-
-        public Mat MakeMaterial()
-        {
-            var material = new DiffuseMaterial
-            {
-                DiffuseMap = Texture,
-            };
-
-            material.DiffuseMapSampler = material.DiffuseMapSampler with { Filter = Filter.MinMagMipPoint };
-            
-            return material;
-        }
+        public int TextureIndex;
     }
-
-    public class MaterialDomain<TSig>
-    {
-        private Dictionary<TSig, Mat> _materials = new();
-        
-        public Func<TSig, Mat> Generator { get; set; }
-
-        public Mat Resolve(TSig sig)
-        {
-            if (_materials.TryGetValue(sig, out var mat))
-                return mat;
-            
-            mat = Generator(sig);
-            _materials.Add(sig, mat);
-            return mat;
-        }
-    }
-    
-    private readonly MaterialDomain<MaterialSignature> _materialDomain = new()
-    {
-        Generator = signature => signature.MakeMaterial()
-    };
     
     private readonly Dictionary<Image, TextureModel> _imageTextures = new();
+    
+    private Project _wideProject;
+    private Project _slimProject;
+    private GroupModel3D _wideModel;
+    private GroupModel3D _slimModel;
+    private DiffuseMaterial _playerMaterial;
+    
+    private Project _capeProject;
+    private Project _elytraProject;
+    private GroupModel3D _capeModel;
+    private GroupModel3D _elytraModel;
+    private DiffuseMaterial _capeMaterial;
     
     public SkinView()
     {
@@ -67,33 +115,69 @@ public partial class SkinView : Viewport3DX
     private void InitializePlayerModel()
     {
         var account = App.Instance.Account;
+        var assembly = Assembly.GetExecutingAssembly();
         
-        var playerStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(account.SlimModel
-            ? "MineLauncher.PlayerSlim.bbmodel"
-            : "MineLauncher.Player.bbmodel");
-        Items.Add(BuildBB(Project.Load(playerStream, new LoadConfig
-        {
-            TextureOverrides = new Dictionary<int, TextureModel>
-            {
-                [0] = CreateTexture(account.PlayerSkin),
-            }
-        })));
+        // BlockBench load
+        _wideProject = Project.Load(assembly.GetManifestResourceStream("MineLauncher.Player.bbmodel"));
+        _slimProject = Project.Load(assembly.GetManifestResourceStream("MineLauncher.PlayerSlim.bbmodel"));
+        _capeProject = Project.Load(assembly.GetManifestResourceStream("MineLauncher.Cape.bbmodel"));
+        _elytraProject = Project.Load(assembly.GetManifestResourceStream("MineLauncher.Elytra.bbmodel"));
+        
+        // Materials
+        _playerMaterial = CreateMaterial();
+        _playerMaterial.DiffuseMap = PlayerSkin is not null
+            ? CreateTexture(PlayerSkin)
+            : _wideProject.Textures[0].Source;
 
-        if (account.CapeSkin is not null)
-        {
-            var capeStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MineLauncher.Cape.bbmodel");
-            Items.Add(BuildBB(Project.Load(capeStream, new LoadConfig
-            {
-                TextureOverrides = new Dictionary<int, TextureModel>
-                {
-                    [0] = CreateTexture(account.CapeSkin),
-                }
-            })));
-        }
+        _capeMaterial = CreateMaterial();
+        _capeMaterial.DiffuseMap = CapeSkin is not null
+            ? CreateTexture(CapeSkin)
+            : _capeProject.Textures[0].Source;
+        
+        // Models
+        _wideModel = BuildBB(_wideProject, _ => _playerMaterial);
+        _slimModel = BuildBB(_slimProject, _ => _playerMaterial);
+        _capeModel = BuildBB(_capeProject, _ => _capeMaterial);
+        _elytraModel = BuildBB(_elytraProject, _ => _capeMaterial);
+        
+        // Refresh
+        RefreshPlayerModelInternal(PlayerSlim);
+        RefreshCapeElytraModelInternal(DisplayElytra);
+    }
+
+    private void RefreshPlayerModelInternal(bool slim)
+    {
+        Items.Remove(_slimModel);
+        Items.Remove(_wideModel);
+
+        var usedModel = slim
+            ? _slimModel
+            : _wideModel;
+                
+        if (usedModel is not null)
+            Items.Add(usedModel);
+    }
+
+    private void RefreshCapeElytraModelInternal(bool elytra)
+    {
+        Items.Remove(_elytraModel);
+        Items.Remove(_capeModel);
+
+        var usedModel = CapeSkin is null
+            ? null
+            : elytra
+                ? _elytraModel
+                : _capeModel;
+                
+        if (usedModel is not null)
+            Items.Add(usedModel);
     }
 
     private TextureModel CreateTexture(Image image)
     {
+        if (image is null)
+            throw new ArgumentNullException(nameof(image));
+        
         if (_imageTextures.TryGetValue(image, out var existing))
             return existing;
 
@@ -135,7 +219,15 @@ public partial class SkinView : Viewport3DX
         }
     }
 
-    private GroupModel3D BuildBB(Project project)
+    private DiffuseMaterial CreateMaterial()
+    {
+        var mat = new DiffuseMaterial();
+        mat.DiffuseMapSampler = mat.DiffuseMapSampler with { Filter = Filter.MinMagMipPoint };
+
+        return mat;
+    }
+
+    private GroupModel3D BuildBB(Project project, Func<MaterialSignature, Mat> materialProvider = null)
     {
         Func<Group, GroupModel3D> buildGroup;
         Func<Element, Element3D> buildModel;
@@ -156,7 +248,7 @@ public partial class SkinView : Viewport3DX
 
         buildModel = element =>
         {
-            var entries = CreateBBElement(project, element, _materialDomain);
+            var entries = CreateBBElement(project, element, materialProvider);
             bool singleModel = entries.Count == 1;
             
             var meshes = entries.Select((entry, i) => new MeshGeometryModel3D
@@ -200,13 +292,13 @@ public partial class SkinView : Viewport3DX
         };
     }
 
-    private Dictionary<Mat, MeshGeometry3D> CreateBBElement(Project project, Element element, MaterialDomain<MaterialSignature> materialDomain) => element switch
+    private Dictionary<Mat, MeshGeometry3D> CreateBBElement(Project project, Element element, Func<MaterialSignature, Mat> materialProvider) => element switch
     {
-        CubeElement cube => CreateBBCube(project, cube, materialDomain),
+        CubeElement cube => CreateBBCube(project, cube, materialProvider),
         _ => throw new ArgumentException("Unknown element type")
     };
 
-    private Dictionary<Mat, MeshGeometry3D> CreateBBCube(Project project, CubeElement element, MaterialDomain<MaterialSignature> materialDomain)
+    private Dictionary<Mat, MeshGeometry3D> CreateBBCube(Project project, CubeElement element, Func<MaterialSignature, Mat> materialProvider)
     {
         Dictionary<Mat, MeshGeometry3D> result = new();
         
@@ -244,38 +336,45 @@ public partial class SkinView : Viewport3DX
 
         var addFace = (CubeFace face, Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3) =>
         {
-            TextureModel faceTexture = project.Textures[face.Texture].Source;
-            MaterialSignature sig = new MaterialSignature { Texture = faceTexture };
-            Mat material = materialDomain.Resolve(sig);
-            MeshGeometry3D mesh;
-            if (result.TryGetValue(material, out var existing))
-                mesh = existing;
-            else
+            MaterialSignature sig = new MaterialSignature { TextureIndex = face.Texture};
+            if (materialProvider?.Invoke(sig) is { } material)
             {
-                mesh = new();
-                result.Add(material, mesh);
+                MeshGeometry3D mesh;
+                if (result.TryGetValue(material, out var existing))
+                    mesh = existing;
+                else
+                {
+                    mesh = new();
+                    result.Add(material, mesh);
+                }
+            
+                var p0 = p(mesh, v0); tc(mesh, face, true, true);
+                var p1 = p(mesh, v1); tc(mesh, face, true, false);
+                var p2 = p(mesh, v2); tc(mesh, face, false, false);
+                var p3 = p(mesh, v3); tc(mesh, face, false, true);
+            
+                mesh.TriangleIndices ??= new();
+                mesh.TriangleIndices.Add(p0);
+                mesh.TriangleIndices.Add(p1);
+                mesh.TriangleIndices.Add(p2);
+                mesh.TriangleIndices.Add(p0);
+                mesh.TriangleIndices.Add(p2);
+                mesh.TriangleIndices.Add(p3);   
             }
-            
-            var p0 = p(mesh, v0); tc(mesh, face, true, true);
-            var p1 = p(mesh, v1); tc(mesh, face, true, false);
-            var p2 = p(mesh, v2); tc(mesh, face, false, false);
-            var p3 = p(mesh, v3); tc(mesh, face, false, true);
-            
-            mesh.TriangleIndices ??= new();
-            mesh.TriangleIndices.Add(p0);
-            mesh.TriangleIndices.Add(p1);
-            mesh.TriangleIndices.Add(p2);
-            mesh.TriangleIndices.Add(p0);
-            mesh.TriangleIndices.Add(p2);
-            mesh.TriangleIndices.Add(p3);
         };
 
-        addFace(element.Faces.Front, v6, v4, v0, v2); // front
-        addFace(element.Faces.Back, v3, v1, v5, v7);  // back
-        addFace(element.Faces.Right, v2, v0, v1, v3); // right
-        addFace(element.Faces.Left, v7, v5, v4, v6);  // left
-        addFace(element.Faces.Up, v2, v3, v7, v6);    // up
-        addFace(element.Faces.Down, v4, v5, v1, v0);  // down
+        if (element.Faces.Front is not null)
+            addFace(element.Faces.Front, v6, v4, v0, v2);
+        if (element.Faces.Back is not null)
+            addFace(element.Faces.Back, v3, v1, v5, v7);
+        if (element.Faces.Right is not null)
+            addFace(element.Faces.Right, v2, v0, v1, v3);
+        if (element.Faces.Left is not null)
+            addFace(element.Faces.Left, v7, v5, v4, v6);
+        if (element.Faces.Up is not null)
+            addFace(element.Faces.Up, v2, v3, v7, v6);
+        if (element.Faces.Down is not null)
+            addFace(element.Faces.Down, v1, v0, v4, v5);
         
         return result;
     }

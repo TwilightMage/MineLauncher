@@ -70,6 +70,9 @@ public class Project
             {
                 foreach (var ovr in config.TextureOverrides)
                 {
+                    if (ovr.Value is null)
+                        continue;
+                    
                     var info = ovr.Value.TextureInfoLoader.Load(ovr.Value.Guid);
                     bb.Textures.Add(ovr.Key, new Texture
                     {

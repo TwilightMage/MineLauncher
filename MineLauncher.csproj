@@ -304,6 +304,9 @@
     <ItemGroup>
       <EmbeddedResource Include="Cape.bbmodel" />
     </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="Elytra.bbmodel" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
       <PropertyGroup>

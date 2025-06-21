@@ -8,11 +8,11 @@
              xmlns:widgets="clr-namespace:MineLauncher.Widgets"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="400"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+             DataContext="{Binding Source={x:Static launcher:App.Instance}, Path=Account}">
     <Grid>
         <!-- Content when account is null -->
         <Grid 
-            Visibility="{Binding Source={x:Static launcher:App.Instance}, Path=Account, Converter={StaticResource NullToVisibilityConverter}}">
+            Visibility="{Binding Source={x:Static launcher:App.Instance}, Converter={StaticResource NullToVisibilityConverter}}">
             <materialIcons:MaterialIcon Kind="Autorenew" Animation="Spin" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
 
@@ -23,7 +23,10 @@
                 <ColumnDefinition Width="2*"/>
             </Grid.ColumnDefinitions>
             
-            <widgets:SkinView Grid.Column="0" Margin="4"/>
+            <widgets:SkinView Grid.Column="0" Margin="4"
+                              PlayerSlim="{Binding SlimModel}"
+                              PlayerSkin="{Binding PlayerSkin}"
+                              CapeSkin="{Binding CapeSkin}"/>
             
             <StackPanel Grid.Column="1" Margin="4" Grid.IsSharedSizeScope="True">
                 <Grid Margin="2">
@@ -32,9 +35,8 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="(DEBUG) Player name"/>
-                    <TextBox Grid.Column="1" 
-                             Text="{Binding Source={x:Static launcher:App.Instance}, Path=Account.Username, Mode=TwoWay}"
-                             Margin="0, 0, 2, 0"/>
+                    <TextBox Grid.Column="1" Margin="0, 0, 2, 0"
+                             Text="{Binding Username, Mode=TwoWay}"/>
                 </Grid>
                 <Grid Margin="2">
                     <Grid.ColumnDefinitions>
@@ -42,9 +44,37 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="(DEBUG) Auth token"/>
-                    <TextBox Grid.Column="1" 
-                             Text="{Binding Source={x:Static launcher:App.Instance}, Path=Account.Token, Mode=TwoWay}"
-                             Margin="0, 0, 2, 0"/>
+                    <TextBox Grid.Column="1" Margin="0, 0, 2, 0"
+                             Text="{Binding Token, Mode=TwoWay}"/>
+                </Grid>
+                <Grid Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="SG"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="Slim model"/>
+                    <CheckBox Grid.Column="1" Margin="0, 0, 2, 0"
+                             IsChecked="{Binding SlimModel, Mode=TwoWay}"/>
+                </Grid>
+                <Grid Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="SG"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="Player skin"/>
+                    <Button Grid.Column="1" Content="..." Margin="0, 0, 2, 0" Padding="10, 0"
+                            Command="{Binding BrowsePlayerSkinCommand}"/>
+                </Grid>
+                <Grid Margin="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" SharedSizeGroup="SG"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Margin="0, 0, 4, 0" Text="Cape skin"/>
+                    <Button Grid.Column="1" Content="..." Margin="0, 0, 2, 0" Padding="10, 0"
+                            Command="{Binding BrowseCapeSkinCommand}"/>
                 </Grid>
             </StackPanel>
         </Grid>

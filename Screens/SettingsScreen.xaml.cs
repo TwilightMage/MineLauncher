@@ -1,6 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows.Forms;
 using System.Windows.Input;
 using MineLauncher.Commands;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace MineLauncher.Screens;
 
@@ -22,7 +23,7 @@ public partial class SettingsScreen : UserControl
         };
             
         var result = dialog.ShowDialog();  
-        if (result.ToString() != string.Empty)  
+        if (result == DialogResult.OK)  
         {  
             App.Instance.AppSettings.InstallDir = dialog.SelectedPath;  
         }
@@ -38,7 +39,7 @@ public partial class SettingsScreen : UserControl
         };
             
         var result = dialog.ShowDialog();  
-        if (result.ToString() != string.Empty)  
+        if (result == DialogResult.OK)  
         {  
             App.Instance.AppSettings.JavaPath = dialog.FileName;  
         }
