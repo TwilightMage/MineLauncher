@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
@@ -42,24 +43,56 @@ public class Account : INotifyPropertyChanged
     private Command _browsePlayerSkinCommand;
     public Command BrowsePlayerSkinCommand => _browsePlayerSkinCommand ??= new RelayCommand(() =>
     {
-        OpenFileDialog dialog = new();
+        OpenFileDialog dialog = new()
+        {
+            Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp"
+        };
             
-        var result = dialog.ShowDialog();  
-        if (result == DialogResult.OK && Image.FromFile(dialog.FileName) is { } image)  
-        {  
-            PlayerSkin = image;  
+        try
+        {
+            var result = dialog.ShowDialog();
+            if (result == DialogResult.OK && Image.FromFile(dialog.FileName) is { } image)
+            {
+                if (image.Width != 64 || image.Height != 64)
+                {
+                    Console.Error.WriteLine("Image must be 64x64 pixels");
+                    return;
+                }
+                
+                PlayerSkin = image;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine(e);
         }
     });
     
     private Command _browseCapeSkinCommand;
     public Command BrowseCapeSkinCommand => _browseCapeSkinCommand ??= new RelayCommand(() =>
     {
-        OpenFileDialog dialog = new();
-            
-        var result = dialog.ShowDialog();  
-        if (result == DialogResult.OK && Image.FromFile(dialog.FileName) is { } image)  
-        {  
-            CapeSkin = image;  
+        OpenFileDialog dialog = new()
+        {
+            Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp"
+        };
+
+        try
+        {
+            var result = dialog.ShowDialog();
+            if (result == DialogResult.OK && Image.FromFile(dialog.FileName) is { } image)
+            {
+                if (image.Width != 64 || image.Height != 32)
+                {
+                    Console.Error.WriteLine("Image must be 64x32 pixels");
+                    return;
+                }
+                
+                CapeSkin = image;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine(e);
         }
     });
 

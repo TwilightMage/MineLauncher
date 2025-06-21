@@ -32,7 +32,7 @@ public partial class SettingsScreen : UserControl
     private ICommand _browseJavaPath;
     public ICommand BrowseJavaPath => _browseJavaPath ??= new RelayCommand(() =>
     {
-        System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog
+        OpenFileDialog dialog = new OpenFileDialog
         {
             FileName = App.Instance.AppSettings.JavaPath,
             Filter = "executable files (*.exe)|*.exe"

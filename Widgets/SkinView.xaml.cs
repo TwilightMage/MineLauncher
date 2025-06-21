@@ -42,9 +42,13 @@ public partial class SkinView : Viewport3DX
                 var skinView = (SkinView)o;
                 var playerSkin = (Image)args.NewValue;
                 
-                skinView._playerMaterial.DiffuseMap = playerSkin is not null
+                skinView._playerWideMaterial.DiffuseMap = playerSkin is not null
                     ? skinView.CreateTexture(playerSkin)
                     : skinView._wideProject.Textures[0].Source;
+                
+                skinView._playerSlimMaterial.DiffuseMap = playerSkin is not null
+                    ? skinView.CreateTexture(playerSkin)
+                    : skinView._slimProject.Textures[0].Source;
             }));
     
     public static readonly DependencyProperty CapeSkinProperty =
@@ -95,7 +99,8 @@ public partial class SkinView : Viewport3DX
     private Project _slimProject;
     private GroupModel3D _wideModel;
     private GroupModel3D _slimModel;
-    private DiffuseMaterial _playerMaterial;
+    private DiffuseMaterial _playerWideMaterial;
+    private DiffuseMaterial _playerSlimMaterial;
     
     private Project _capeProject;
     private Project _elytraProject;
@@ -124,10 +129,15 @@ public partial class SkinView : Viewport3DX
         _elytraProject = Project.Load(assembly.GetManifestResourceStream("MineLauncher.Elytra.bbmodel"));
         
         // Materials
-        _playerMaterial = CreateMaterial();
-        _playerMaterial.DiffuseMap = PlayerSkin is not null
+        _playerWideMaterial = CreateMaterial();
+        _playerWideMaterial.DiffuseMap = PlayerSkin is not null
             ? CreateTexture(PlayerSkin)
             : _wideProject.Textures[0].Source;
+        
+        _playerSlimMaterial = CreateMaterial();
+        _playerSlimMaterial.DiffuseMap = PlayerSkin is not null
+            ? CreateTexture(PlayerSkin)
+            : _slimProject.Textures[0].Source;
 
         _capeMaterial = CreateMaterial();
         _capeMaterial.DiffuseMap = CapeSkin is not null
@@ -135,8 +145,8 @@ public partial class SkinView : Viewport3DX
             : _capeProject.Textures[0].Source;
         
         // Models
-        _wideModel = BuildBB(_wideProject, _ => _playerMaterial);
-        _slimModel = BuildBB(_slimProject, _ => _playerMaterial);
+        _wideModel = BuildBB(_wideProject, _ => _playerWideMaterial);
+        _slimModel = BuildBB(_slimProject, _ => _playerSlimMaterial);
         _capeModel = BuildBB(_capeProject, _ => _capeMaterial);
         _elytraModel = BuildBB(_elytraProject, _ => _capeMaterial);
         
