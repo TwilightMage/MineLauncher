@@ -174,16 +174,9 @@ public partial class App : INotifyPropertyChanged
         };
     }
 
-    private void InitSettings()
-    {
-        
-    }
-
     private ICommand _loginCommand;
     public ICommand LoginCommand => _loginCommand ??= new RelayCommand(async () =>
     {
-        await Task.Delay(3000);
-        
         Account = new Account
         {
             Username = "Drakosha",

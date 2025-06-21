@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using SharpDX;
 
 namespace MineLauncher;
 
@@ -71,5 +73,55 @@ public static class Utils
             DateTimeStyles.None,
             out result
         );
+    }
+
+    public static T Clamp<T>(T value, T min, T max) where T : IComparable<T> 
+    => value.CompareTo(min) < 0 ? min : value.CompareTo(max) > 0 ? max : value;
+
+
+    public static Transform3D MakeCorrectRotationMatrix(Vector3 euler, Vector3 centerPoint)
+    {
+        // Convert angles to radians
+        double pitch = euler.Y * Math.PI / -180; // Y rotation (pitch)
+        double yaw = euler.X * Math.PI / 180;   // X rotation (yaw)
+        double roll = euler.Z * Math.PI / 180;  // Z rotation (roll)
+
+        // Pre-calculate trigonometric values
+        double cp = Math.Cos(pitch);
+        double sp = Math.Sin(pitch);
+        double cy = Math.Cos(yaw);
+        double sy = Math.Sin(yaw);
+        double cr = Math.Cos(roll);
+        double sr = Math.Sin(roll);
+
+        // Create the rotation matrix
+        Matrix3D rotationMatrix = new Matrix3D(
+            cp * cr,                   -cp * sr,                sp,                 0,  // Row 1
+            cy * sr + sy * sp * cr,    cy * cr - sy * sp * sr, -sy * cp,          0,  // Row 2
+            sy * sr - cy * sp * cr,    sy * cr + cy * sp * sr,  cy * cp,          0,  // Row 3
+            0,                         0,                       0,                  1   // Row 4
+        );
+
+        // Create a transform group to combine transformations
+        Transform3DGroup transformGroup = new Transform3DGroup();
+    
+        // Add translation to origin
+        transformGroup.Children.Add(new TranslateTransform3D(
+            -centerPoint.X, 
+            -centerPoint.Y, 
+            -centerPoint.Z
+        ));
+    
+        // Add rotation
+        transformGroup.Children.Add(new MatrixTransform3D(rotationMatrix));
+    
+        // Add translation back
+        transformGroup.Children.Add(new TranslateTransform3D(
+            centerPoint.X,
+            centerPoint.Y,
+            centerPoint.Z
+        ));
+
+        return transformGroup;
     }
 }

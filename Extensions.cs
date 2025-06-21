@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace MineLauncher;
 
@@ -10,6 +11,8 @@ public static class Extensions
         action(item);
         return item;
     }
+    
+    public static string ToValidName(this string name) => Regex.Replace(name, @"[^a-zA-Z0-9_]+", "_");
     
     public static string FormatInline(this string format, params object[] args) => string.Format(format, args);
     

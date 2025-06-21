@@ -15,6 +15,7 @@
         <WarningLevel>4</WarningLevel>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <LangVersion>latest</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -45,6 +46,15 @@
         <Reference Include="CmlLib.Core.Installer.Forge, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
           <HintPath>packages\CmlLib.Core.Installer.Forge.1.1.0\lib\netstandard2.0\CmlLib.Core.Installer.Forge.dll</HintPath>
         </Reference>
+        <Reference Include="Cyotek.Drawing.BitmapFont, Version=1.0.0.0, Culture=neutral, PublicKeyToken=58daa28b0b2de221, processorArchitecture=MSIL">
+          <HintPath>packages\Cyotek.Drawing.BitmapFont.2.0.0\lib\net472\Cyotek.Drawing.BitmapFont.dll</HintPath>
+        </Reference>
+        <Reference Include="HelixToolkit, Version=2.27.0.0, Culture=neutral, PublicKeyToken=52aa3500039caf0d, processorArchitecture=MSIL">
+          <HintPath>packages\HelixToolkit.2.27.0\lib\netstandard2.0\HelixToolkit.dll</HintPath>
+        </Reference>
+        <Reference Include="HelixToolkit.Wpf.SharpDX, Version=2.27.0.0, Culture=neutral, PublicKeyToken=52aa3500039caf0d, processorArchitecture=MSIL">
+          <HintPath>packages\HelixToolkit.Wpf.SharpDX.2.27.0\lib\net462\HelixToolkit.Wpf.SharpDX.dll</HintPath>
+        </Reference>
         <Reference Include="HtmlAgilityPack, Version=1.11.48.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
           <HintPath>packages\HtmlAgilityPack.1.11.48\lib\Net45\HtmlAgilityPack.dll</HintPath>
         </Reference>
@@ -63,12 +73,36 @@
         <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
           <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
         </Reference>
+        <Reference Include="Microsoft.Extensions.Logging.Abstractions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+          <HintPath>packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\lib\net461\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+        </Reference>
         <Reference Include="mscorlib" />
         <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
           <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="SevenZip, Version=19.0.0.0, Culture=neutral, processorArchitecture=MSIL">
           <HintPath>packages\LZMA-SDK.19.0.0\lib\net20\SevenZip.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX.D3DCompiler, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.D3DCompiler.4.2.0\lib\net45\SharpDX.D3DCompiler.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX.Direct2D1, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.Direct2D1.4.2.0\lib\net45\SharpDX.Direct2D1.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX.Direct3D11, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.Direct3D11.4.2.0\lib\net45\SharpDX.Direct3D11.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX.Direct3D9, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.Direct3D9.4.2.0\lib\net45\SharpDX.Direct3D9.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX.DXGI, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.DXGI.4.2.0\lib\net45\SharpDX.DXGI.dll</HintPath>
+        </Reference>
+        <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+          <HintPath>packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
         </Reference>
         <Reference Include="System" />
         <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -80,6 +114,7 @@
         <Reference Include="System.ComponentModel.DataAnnotations" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
+        <Reference Include="System.Drawing" />
         <Reference Include="System.IO.Compression.FileSystem" />
         <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
           <HintPath>packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
@@ -141,6 +176,16 @@
           <DependentUpon>AccountWidget.xaml</DependentUpon>
         </Compile>
         <Compile Include="AppInstanceExtension.cs" />
+        <Compile Include="BlockBench\Project.cs" />
+        <Compile Include="BlockBench\Element.cs" />
+        <Compile Include="BlockBench\CubeFace.cs" />
+        <Compile Include="BlockBench\CubeFaceGroup.cs" />
+        <Compile Include="BlockBench\Group.cs" />
+        <Compile Include="BlockBench\IProjectNode.cs" />
+        <Compile Include="BlockBench\LoadConfig.cs" />
+        <Compile Include="BlockBench\RectConverter.cs" />
+        <Compile Include="BlockBench\Texture.cs" />
+        <Compile Include="BlockBench\TextureModelConverter.cs" />
         <Compile Include="Commands\Command.cs" />
         <Compile Include="Commands\FakeCommand.cs" />
         <Compile Include="Commands\RelayCommand.cs" />
@@ -186,6 +231,9 @@
         <Compile Include="Widgets\MainTabScreen.xaml.cs">
           <DependentUpon>MainTabScreen.xaml</DependentUpon>
         </Compile>
+        <Compile Include="Widgets\SkinView.xaml.cs">
+          <DependentUpon>SkinView.xaml</DependentUpon>
+        </Compile>
         <Compile Include="Windows\JavaBrowser.xaml.cs">
           <DependentUpon>JavaBrowser.xaml</DependentUpon>
         </Compile>
@@ -205,6 +253,7 @@
         <Page Include="Widgets\LogEntry.xaml" />
         <Page Include="Widgets\MainTab.xaml" />
         <Page Include="Widgets\MainTabScreen.xaml" />
+        <Page Include="Widgets\SkinView.xaml" />
         <Page Include="Windows\JavaBrowser.xaml" />
         <Page Include="Windows\MainWindow.xaml">
           <Generator>MSBuild:Compile</Generator>
@@ -243,11 +292,25 @@
         <Name>Dummy</Name>
       </ProjectReference>
     </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="Player.bbmodel" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="PlayerSlim.bbmodel" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Include="BlockBench\Vector3Converter.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="Cape.bbmodel" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
       <PropertyGroup>
         <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
       </PropertyGroup>
       <Error Condition="!Exists('packages\LibGit2Sharp.NativeBinaries.2.0.323\build\net46\LibGit2Sharp.NativeBinaries.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\LibGit2Sharp.NativeBinaries.2.0.323\build\net46\LibGit2Sharp.NativeBinaries.props'))" />
+      <Error Condition="!Exists('packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\build\Microsoft.Extensions.Logging.Abstractions.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\build\Microsoft.Extensions.Logging.Abstractions.targets'))" />
     </Target>
+    <Import Project="packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\build\Microsoft.Extensions.Logging.Abstractions.targets" Condition="Exists('packages\Microsoft.Extensions.Logging.Abstractions.6.0.0\build\Microsoft.Extensions.Logging.Abstractions.targets')" />
 </Project>
